@@ -73,4 +73,4 @@ git checkout <branch>
 ```
 git checkout -b <branch> upstream/<branch>
 ```
-Now following the _general workflow_.
+Now follow the instructions from the section _general workflow_.

@@ -282,6 +282,27 @@ def write_data(city, parsed_data, category_id, f):
     f.write("!#\n")
 
 
+def categories_parser(categories):
+    """
+    It creates a dictionary by parsing the JSON format coming from the MeetUp
+    Client.
+    Parameters
+    ----------
+    categories : JSON formatted list
+        This JSON formated list contains all the available categories.
+    Returns
+    -------
+    categories_parsed : dictionary of categories
+        This dictionary has category ids as keys and category labels as items.
+    """
+    categories_parsed = {}
+    for category in categories:
+        id = category["id"]
+        label = category["name"]
+        categories_parsed[id] = label
+    return categories_parsed
+
+
 def get_and_save_city_events(city, filename="./csv/{}.csv", code_list=None,
                              categories=None, write_date=True, write_name=True,
                              write_id=True):
@@ -341,9 +362,9 @@ def get_and_save_city_events(city, filename="./csv/{}.csv", code_list=None,
         write_num_activities(city, num_activities, f)
 
     print("Saved a custom csv file saved in" +
-          "\'{}\'".format(filename.format(city)))
-    
-    
+"\'{}\'".format(filename.format(city)))   
+
+ 
 def parse_args():
     parser = argparse.ArgumentParser(description="Parse all events going on in a city and oput them as csv")
     parser.add_argument("city", help="City you want to get the event for", default="Barcelona")

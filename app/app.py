@@ -10,4 +10,4 @@ mongo = PyMongo(app)
 
 @app.route('/')
 def index():
-    return 'Hello, World!'
+    return 'This is a new branch!'

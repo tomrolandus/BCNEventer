@@ -24,4 +24,3 @@ def getEvents():
             new_event = Event(row[3],(row[0],row[1]),row[2])
             events.append(new_event)
     return events
-

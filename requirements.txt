@@ -2,3 +2,6 @@ Flask
 Flask-Script
 python-dotenv
 Flask-Pymongo
+pandas
+bs4
+requests

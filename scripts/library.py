@@ -4,6 +4,21 @@ import pymongo
 import pandas as pd
 
 ## Helpers
+''' cnames = ['lat', #0
+              'long', #1
+              'event_type', #2
+              'address', #3 
+              'start_date', #4
+              'end_date', #5
+              'event_info', #6
+              'web', #7
+              'image', #8
+              'tickets', #9
+              'year', #10
+              'location', #11
+              'event_name', #12
+              'price', #13
+         ]  '''
 def drop_columns(data, cnames):
     drop_columns = list(set(data.columns) - set(cnames))
     data = data.drop(drop_columns, axis = 1)
@@ -15,7 +30,7 @@ def load_and_prepare_data(cnames, rename_cols_fct, path):
     return(data)
 def rename_cols_street_markets(cnames, data):
     data.rename(columns={'NOM_CAPA':cnames[2], 'LONGITUD':cnames[1], 'LATITUD': cnames[0],
-                                   'ADRECA': cnames[3] }, inplace = True)
+                                   'ADRECA': cnames[3] })
     data[cnames[2]] = 'Street Markets'
     return(data)
 def rename_cols_cultural_activities(cnames, data):
@@ -29,6 +44,11 @@ def rename_cols_temporary_expos(cnames, data):
 def rename_cols_exceed(cnames, data):
     data = data.rename(columns={'description':cnames[12], 'start time':cnames[4], 'place': cnames[11],
                                 'musice style': cnames[6], 'price': cnames[13]})
+    return(data)
+def rename_cols_meetup(cnames, data):
+    data = data.rename(columns={'coordinates0':cnames[0], 'coordinates2':cnames[1], 'Time': cnames[4],
+                                'Event': cnames[12]})
+    data.start_date = pd.to_datetime(data.start_date, unit='ms').astype(str)
     return(data)
 def write_db(data, data_name, collection):
     try:

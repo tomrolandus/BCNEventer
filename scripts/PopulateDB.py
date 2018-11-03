@@ -33,11 +33,6 @@ def drop_columns(data):
     drop_columns = list(set(data.columns) - set(cnames))
     data = data.drop(drop_columns, axis = 1)
     return(data)
-def rename_cols_street_markets(cnames, data):
-    data = data.rename(columns={'NOM_CAPA':cnames[2], 'LONGITUD':cnames[1], 'LATITUD': cnames[0],
-                                   'ADRECA': cnames[3] })
-    data[cnames[2]] = 'Street Markets'
-    return(data)
 def load_and_prepare_data(cnames, rename_cols_fct, path):
     data = pd.read_csv(path)
     data = rename_cols_fct(cnames, data)
@@ -74,4 +69,4 @@ write_db(cultural_activities, "Cultural Activities")
 
 ## Temporary expos
 temporary_expos = load_and_prepare_data(cnames, rename_cols_temporary_expos, "../datasets/OpenDataBCN/temporary_expos.csv")
-collection.insert_many(temporary_expos.to_dict("records"))
+write_db(temporary_expos, "temporary_expos")

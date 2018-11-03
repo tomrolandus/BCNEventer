@@ -32,11 +32,11 @@ cnames = ['lat', #0
 db = conn['events']
 
 ## Xceed
-collection = db.exceed
+col_xceed = db.exceed
 xceed = lib.load_and_prepare_data(cnames, lib.rename_cols_exceed, "../datasets/Xceed/xceed_barcelona.csv")
-lib.write_db(xceed, "Xceed", collection)
+lib.write_db(xceed, "Xceed", col_xceed)
 
 ## Meetup
-collection = db.meetup
+col_meetup = db.meetup
 meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv")
-lib.write_db(meetup, "Meetup", collection)
+lib.write_db(meetup, "Meetup", col_meetup)

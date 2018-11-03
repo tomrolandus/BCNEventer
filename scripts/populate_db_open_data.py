@@ -14,7 +14,7 @@ except pymongo.errors.ConnectionFailure as e:
 
 ## Set up database and collection
 db = conn['events']
-collection = db.opendata
+col_opendata = db.opendata
 
 cnames = ['lat', #0
           'long', #1
@@ -34,12 +34,12 @@ cnames = ['lat', #0
 
 ## Street Markets
 street_markets = lib.load_and_prepare_data(cnames, lib.rename_cols_street_markets, "../datasets/OpenDataBCN/street_markets.csv")
-lib.write_db(street_markets, "Street Markets", collection)
+lib.write_db(street_markets, "Street Markets", col_opendata)
 
 ## Cultural activities
 cultural_activities = lib.load_and_prepare_data(cnames, lib.rename_cols_cultural_activities, "../datasets/OpenDataBCN/cultural_activities.csv")
-lib.write_db(cultural_activities, "Cultural Activities", collection)
+lib.write_db(cultural_activities, "Cultural Activities", col_opendata)
 
 ## Temporary expos
 temporary_expos = lib.load_and_prepare_data(cnames, lib.rename_cols_temporary_expos, "../datasets/OpenDataBCN/temporary_expos.csv")
-lib.write_db(temporary_expos, "Temporary Expos", collection)
+lib.write_db(temporary_expos, "Temporary Expos", col_opendata)

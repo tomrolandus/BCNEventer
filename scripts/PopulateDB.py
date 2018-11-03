@@ -52,6 +52,10 @@ def rename_cols_cultural_activities(cnames, data):
     data = data.rename(columns={'Data fi':cnames[5], 'Data inici':cnames[4], 'Descripció': cnames[6],
                                    'Enllaços': cnames[7], 'Imatges': cnames[8], 'Entrades': cnames[9]})
     return(data)
+def rename_cols_temporary_expos(cnames, data):
+    data = data.rename(columns={'Any':cnames[10], 'Latitud':cnames[0], 'Longitud': cnames[1],
+                                   'Web': cnames[7], 'Seu': cnames[11]})
+    return(data)
 def write_db(data, data_name):
     try:
         collection.insert_many(data.to_dict("records"))
@@ -67,3 +71,7 @@ write_db(street_markets, "Street Markets")
 ## Cultural activities
 cultural_activities = load_and_prepare_data(cnames, rename_cols_cultural_activities, "../datasets/OpenDataBCN/cultural_activities.csv")
 write_db(cultural_activities, "Cultural Activities")
+
+## Temporary expos
+temporary_expos = load_and_prepare_data(cnames, rename_cols_temporary_expos, "../datasets/OpenDataBCN/temporary_expos.csv")
+collection.insert_many(temporary_expos.to_dict("records"))

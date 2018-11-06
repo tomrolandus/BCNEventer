@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{% block title %}{% endblock title %}</title>
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {# Link any other .css or .js found in app static folder. #}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/styles.css') }}"  />
+  <style>
+    {# Add simple CSS style tweaks here. #}
+  </style>
+  <script>
+    $(function() {
+      {# Add page-load JavaScript here. #}
+    });
+  </script>
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body>
+  <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <a class="navbar-brand" href="#">BCNEventer</a>
+  </nav>
+  <div class="content container">
+    {% block main %}{% endblock main %}
+  </div>
+</body>
+</html>

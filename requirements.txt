@@ -5,3 +5,6 @@ Flask-Pymongo
 pandas
 bs4
 requests
+flask-mongoengine
+flask-wtf
+flask-login

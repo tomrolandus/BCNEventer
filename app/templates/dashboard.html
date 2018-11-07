@@ -1,0 +1,28 @@
+
+
+{% extends 'base.html' %}
+{% block title %}BCNEventer - Dashboard{% endblock title %}
+{% block main %}
+      <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <a class="navbar-brand" href="#">BCNEventer - Dashboard</a>
+      <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
+  </nav>
+  <div class="content container">
+{#    <h1>Dashboard</h1>#}
+
+  <h2>Available Events</h2>
+    <div class="flex-container">
+    {% for event in events %}
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="../static/event.jpg" width="200px" height="150px" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title" style="height: 70px;">{{ event.name }}</h5>
+                <p class="card-text" style="height: 30px;">Location: {{ event.coordinates }}</p>
+                <p class="card-text" style="height: 20px;">Time: {{ event.time }}</p>
+                <a href="#" class="btn btn-primary">SEE MORE</a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+  </div>
+{% endblock main %}

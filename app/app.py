@@ -1,40 +1,28 @@
-# from flask_pymongo import PyMongo
+import csv
+import os
+
 from flask import Flask, render_template
-
-from flask import request, redirect, url_for
-
+from flask_login import LoginManager, login_required, current_user
 from flask_mongoengine import MongoEngine
 
-import csv
-from .event import Event
-
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from .auth.registration_form import RegForm
-# from .auth.user import User
-from werkzeug.security import generate_password_hash, check_password_hash
-
-
-import os
-from .settings import APP_ROOT
 from .auth.auth_controller import AuthController
+from .event import Event
+from .settings import APP_ROOT
+
+# from .auth.user import User
+
 app = Flask(__name__)
 
 app.config.from_pyfile('../settings.cfg', silent=False)
 
-# app.config['MONGO_DBNAME'] = 'bcneventer'
-# app.config['MONGO_URI'] = 'mongodb://localhost:27017/bcneventer'
-app.config['MONGODB_SETTINGS'] = {
-    'db': 'bcneventer',
-    'host': 'mongodb://localhost:27017/bcneventer'
-}
 db = MongoEngine(app)
-#mongo = PyMongo(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 auth = AuthController()
+
 
 # class User(UserMixin, db.Document):
 #     meta = {'collection': 'users'}
@@ -62,6 +50,7 @@ def index():
     #     return redirect(url_for('dashboard'))
     # return redirect(url_for('login'))
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     return auth.register()
@@ -79,6 +68,7 @@ def register():
     #         else:
     #             return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
     # return render_template('register.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -101,6 +91,7 @@ def login():
     #         return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
     # return render_template('login.html', form=form)
 
+
 @app.route('/test', methods=['GET'])
 def test():
     # hey = User("webmaster.sy@gmail.com", "123").save()
@@ -110,13 +101,15 @@ def test():
         return repr(check_me)
     return 'Not found!'
 
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
     events = getEvents()
     return render_template('dashboard.html', name=current_user.email, events=events)
 
-@app.route('/logout', methods = ['GET'])
+
+@app.route('/logout', methods=['GET'])
 @login_required
 def logout():
     return auth.logout()
@@ -124,12 +117,11 @@ def logout():
     # return redirect(url_for('login'))
 
 
-
 def getEvents():
     events = []
     with open(os.path.join(APP_ROOT, 'static/events_Barcelona.csv'), 'rt') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
         for row in csv_reader:
-            new_event = Event(row[3],(row[0],row[1]),row[2])
+            new_event = Event(row[3], (row[0], row[1]), row[2])
             events.append(new_event)
     return events

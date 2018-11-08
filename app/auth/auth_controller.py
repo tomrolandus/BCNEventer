@@ -1,15 +1,13 @@
-from flask import Flask, render_template
-
+from flask import render_template
 from flask import request, redirect, url_for
-
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from .registration_form import RegForm
+from flask_login import login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from .registration_form import RegForm
 from .user import User
 
 
 class AuthController:
-
     user = None
 
     def __init__(self):
@@ -37,7 +35,7 @@ class AuthController:
         return render_template('register.html', form=form)
 
     def login(self):
-        if current_user.is_authenticated == True:
+        if current_user.is_authenticated:
             return redirect(url_for('dashboard'))
         form = RegForm()
         if request.method == 'POST':

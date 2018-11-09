@@ -1,123 +1,93 @@
 import csv
 import os
+from urllib.parse import urlparse, urljoin
 
-from flask import Flask, render_template
-from flask_login import LoginManager, login_required, current_user
+from flask import Flask, render_template, redirect, url_for, request, abort
+from flask_login import login_required, login_user, user_logged_in, current_user, LoginManager, logout_user
 from flask_mongoengine import MongoEngine
 
-from .auth.auth_controller import AuthController
+from app.User import User
+from app.auth.registration_form import RegForm
 from .event import Event
 from .settings import APP_ROOT
 
-# from .auth.user import User
-
 app = Flask(__name__)
-
 app.config.from_pyfile('../settings.cfg', silent=False)
-
 db = MongoEngine(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-auth = AuthController()
-
-
-# class User(UserMixin, db.Document):
-#     meta = {'collection': 'users'}
-#     email = db.StringField()
-#     password = db.StringField()
-#
-#     def __repr__(self):
-#         return 'emaily: '+self.email+', password: '+self.password
-#
-#     def __str__(self):
-#         return 'my str'
-
-
 @login_manager.user_loader
 def load_user(user_id):
-    return auth.load_user(user_id)
+    if user_id == 'None':
+        return None
 
-    # return User.objects(pk=user_id).first()
+    return User.objects(pk=user_id).first()
 
 
 @app.route('/', methods=['GET'])
 def index():
-    return auth.route()
-    # if current_user.is_authenticated == True:
-    #     return redirect(url_for('dashboard'))
-    # return redirect(url_for('login'))
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    return auth.register()
-    # form = RegForm()
-    # if request.method == 'POST':
-    #
-    #     if form.validate():
-    #         existing_user = User.objects(email=form.email.data).first()
-    #         if existing_user is None:
-    #             hashpass = generate_password_hash(form.password.data, method='sha256')
-    #             # return form.email+'   '+hashpass
-    #             hey = User(form.email.data,hashpass).save()
-    #             login_user(hey)
-    #             return redirect(url_for('dashboard'))
-    #         else:
-    #             return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
-    # return render_template('register.html', form=form)
+    form = RegForm()
+
+    if request.method == 'POST' and form.validate():
+        user = User.objects(email=form.email.data).first()
+        if user is None:
+            try:
+                User.create(form.email.data, form.password.data)
+            except Exception as e:
+                if str(e) == 'password_length':
+                    return render_template('register.html', form=form,
+                                           server_errors=['Your password should be between 8 and 20 characters long'])
+                return render_template('register.html', form=form, server_errors=['An unexpected error occured'])
+
+            return redirect(url_for('dashboard'))
+        return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
+
+    return render_template('register.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    return auth.login()
-    # if current_user.is_authenticated == True:
-    #     return redirect(url_for('dashboard'))
-    # form = RegForm()
-    # if request.method == 'POST':
-    #     if form.validate():
-    #         check_user = User.objects(email=form.email.data).first()
-    #         if check_user:
-    #             if check_password_hash(check_user['password'], form.password.data):
-    #                 login_user(check_user)
-    #                 return redirect(url_for('dashboard'))
-    #             else:
-    #                 return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
-    #         else:
-    #             return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
-    #     else:
-    #         return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
-    # return render_template('login.html', form=form)
+    form = RegForm()
 
+    if request.method == 'GET':
+        return render_template('login.html', form=form)
 
-@app.route('/test', methods=['GET'])
-def test():
-    # hey = User("webmaster.sy@gmail.com", "123").save()
-    hey = User.objects().all()
-    check_me = hey
-    if check_me:
-        return repr(check_me)
-    return 'Not found!'
+    if form.validate():
+        user = User.objects(email=form.email.data).first()
+        if user and user.login(form.password.data):
+            login_user(user)
+            return redirect(url_for('dashboard'))
+
+        return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
+
+    return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    events = getEvents()
+    events = get_events()
     return render_template('dashboard.html', name=current_user.email, events=events)
 
 
 @app.route('/logout', methods=['GET'])
 @login_required
 def logout():
-    return auth.logout()
-    # logout_user()
-    # return redirect(url_for('login'))
+    logout_user()
+    return redirect(url_for('login'))
 
 
-def getEvents():
+def get_events():
     events = []
     with open(os.path.join(APP_ROOT, 'static/events_Barcelona.csv'), 'rt') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')

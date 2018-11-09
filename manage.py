@@ -1,7 +1,7 @@
+import os
+from dotenv import load_dotenv
 from flask_script import Manager
 from app.app import app
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 

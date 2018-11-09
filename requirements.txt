@@ -1,3 +1,5 @@
+mongoengine
+wtforms
 werkzeug
 Flask
 Flask-Script

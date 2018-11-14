@@ -18,6 +18,7 @@ import pandas as pd
               'location', #11
               'event_name', #12
               'price', #13
+              'category', #14
          ]  '''
 def drop_columns(data, cnames):
     drop_columns = list(set(data.columns) - set(cnames))

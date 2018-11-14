@@ -1,14 +1,13 @@
 import csv
 import os
-from urllib.parse import urlparse, urljoin
 
-from flask import Flask, render_template, redirect, url_for, request, abort
-from flask_login import login_required, login_user, user_logged_in, current_user, LoginManager, logout_user
+from flask import Flask, render_template, redirect, url_for, request
+from flask_login import login_required, login_user, current_user, LoginManager, logout_user
 from flask_mongoengine import MongoEngine
 
 from app.User import User
 from app.auth.registration_form import RegForm
-from .event import Event
+from .Event import Event
 from .settings import APP_ROOT
 
 app = Flask(__name__)

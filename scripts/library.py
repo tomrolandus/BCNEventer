@@ -24,8 +24,9 @@ def drop_columns(data, cnames):
     drop_columns = list(set(data.columns) - set(cnames))
     data = data.drop(drop_columns, axis = 1)
     return(data)
-def load_and_prepare_data(cnames, rename_cols_fct, path):
-    data = pd.read_csv(path)
+def load_and_prepare_data(cnames, rename_cols_fct, path, delimiter_ = None):
+    if delimiter_ is None: data = pd.read_csv(path)
+    else: data = pd.read_csv(path, delimiter=delimiter_)
     data = rename_cols_fct(cnames, data)
     data = drop_columns(data, cnames)
     return(data)

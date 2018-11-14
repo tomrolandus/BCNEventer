@@ -1,4 +1,6 @@
 
+#%%
+
 ## Modules
 import pymongo
 import library as lib
@@ -39,5 +41,5 @@ lib.write_db(xceed, "Xceed", col_xceed)
 
 ## Meetup
 col_meetup = db.meetup
-meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv")
+meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv", delimiter_ = ";")
 lib.write_db(meetup, "Meetup", col_meetup)

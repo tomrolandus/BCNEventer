@@ -3,6 +3,7 @@ import requests
 import sys
 import os
 import argparse
+import pandas as pd
 from cities import cities
 from categories import categories as local_categories
 
@@ -195,9 +196,10 @@ def data_parser(data, write_date, write_name, write_id):
         # Retrieving description
         if write_name:
             event_name = event.get("name")
-            # Remove semicolons, they would produce interpretation errors when
+            # Remove semicolons and commas, they would produce interpretation errors when
             # read from file
             event_name = event_name.replace(';', '')
+            event_name = event_name.replace(',',' ')
 
         if write_id:
             event_id = event.get("id")
@@ -249,7 +251,7 @@ def name_parser(string):
     return string.replace('\n', ' ')
 
 
-def write_data(city, parsed_data, category_id, f):
+def write_data(city, parsed_data, category_id, categories, f, first):
     """
     It writes down the parsed data for each one of the activities that were
     found in a city to an output csv file.
@@ -264,6 +266,8 @@ def write_data(city, parsed_data, category_id, f):
         It is the category id where all the activities from the locations data
         belong to. If it is not given, no information about the category will
         be written.
+    categories: dictionary
+        provided dict of categories.py
     f : file object
         This is the object belonging to the file that was opened.
     parsed_data : list of dictionaries
@@ -271,18 +275,21 @@ def write_data(city, parsed_data, category_id, f):
         data with the following format:
             keys:   ["latitude", "longitude", "date", "name", "event_id"]
             values: [float, float, integer, string, string]
+    first: boolean
+        whether it is the first iteration. It writes the header of the file.
     """
-    f.write("#{}\n".format(category_id))
+    if first: f.write("coordinates0;coordinates2;Time;Event;id;category\n")
     for event in parsed_data:
         parsed_name = name_parser(event["name"])
         f.write("{};{};{};{};{};{}\n".format(event["coordinates"][0],
                                           event["coordinates"][1],
-                                          event["date"], parsed_name,
+                                          event["date"],
+                                          parsed_name,
                                           event["id"],
-                                          category_id
+                                          categories[category_id]
                                              )
                 )
-    f.write("!#\n")
+    #f.write("!#\n")
 
 
 def categories_parser(categories):
@@ -355,17 +362,30 @@ def get_and_save_city_events(city, filename="./csv/{}.csv", code_list=None,
     os.makedirs(os.path.dirname(filename.format(city)), exist_ok=True)
     with open(filename.format(city), 'w') as f:
         num_activities = 0
+        first = True
         for category_id, category_label in categories.items():
             results = get_open_events_of_city(city, code_list,
                                               category_id=category_id)
             parsed_data = data_parser(results, write_date, write_name,
                                       write_id)
             num_activities += len(parsed_data)
-            write_data(city, parsed_data, category_id, f)
+            write_data(city, parsed_data, category_id, categories, f, first)
+            first = False
         write_num_activities(city, num_activities, f)
 
     print("Saved a custom csv file saved in" +
 "\'{}\'".format(filename.format(city)))   
+
+def format_file(city, filename="./csv/{}.csv"):
+    """
+
+    :param city:
+    :param filename:
+    :return:
+    """
+    fname = filename.format(city)
+    ##data = pd.read_csv(fname)
+
 
  
 def parse_args():
@@ -380,3 +400,4 @@ if __name__ == "__main__":
     args = parse_args()
     add_key(args.key)
     get_and_save_city_events(args.city)
+    #format_file(args.city)

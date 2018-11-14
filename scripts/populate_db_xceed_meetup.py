@@ -27,6 +27,7 @@ cnames = ['lat', #0
           'location', #11
           'event_name', #12
           'price', #13
+          'category', #14
          ] 
 ## Set up database and collection
 db = conn['events']

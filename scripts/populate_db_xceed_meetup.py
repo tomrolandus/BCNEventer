@@ -4,7 +4,6 @@
 ## Modules
 import pymongo
 import library as lib
-import pandas as pd
 
 
 ## Connection to Mongo DB

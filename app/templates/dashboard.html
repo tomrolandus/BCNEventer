@@ -1,0 +1,48 @@
+
+
+{% extends 'base.html' %}
+{% block title %}BCNEventer - Dashboard{% endblock title %}
+{% block extra_head %}
+    <style>
+.background-image {
+  {#background-image: url('https://www.triptemptation.com/media/991e8e96-a79f-43fe-af86-10a95ecf7131/ffHrIA/Wallpapers/Barcelona/i-love-barcelona-1/2560x1440_0028_i-love-barcelona-wallpaper.jpg');#}
+  {#background-image: url('https://res.allmacwallpaper.com/get/iMac-21-inch-5K-Retina-wallpapers/Long-Expo-Barcelona-4096x2304/18514-13.jpg');#}
+  background-image: url('../static/barcelona.jpg');
+    background-size: cover;
+  display: block;
+  -webkit-filter: blur(5px);
+    filter: blur(5px);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  right: 0;
+  z-index: 0;
+    opacity: 0.2;
+}
+    </style>
+{% endblock extra_head %}
+{% block main %}
+      <nav class="navbar navbar-light" style="background-color: #FFC312;">
+    <a class="navbar-brand" href="#">BCNEventer - Dashboard</a>
+      <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
+  </nav>
+    <div class="background-image"></div>
+  <div class="content container">
+{#    <h1>Dashboard</h1>#}
+
+  <h2 style="color: white; margin-top: 10px">Available Events</h2>
+    <div class="flex-container">
+    {% for event in events %}
+        <div class="card" style="width: 15rem; border: 2px solid black;">
+            <img class="card-img-top" src="../static/event.jpg" width="200px" height="150px" alt="Card image cap">
+            <div class="card-body">
+                <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>
+                <p class="card-text" style="height: 30px;">Location: {{ event.coordinates }}</p>
+                <p class="card-text" style="height: 20px;">Time: {{ event.time }}</p>
+                <a href="#" class="btn" style="background-color: #FFC312; color: black; border: 2px solid black;">SEE MORE</a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+  </div>
+{% endblock main %}

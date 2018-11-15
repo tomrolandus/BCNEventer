@@ -1,0 +1,210 @@
+{#<h1>Login</h1>#}
+{#<form action="/login" method="post">#}
+{#  <p>Email</p>#}
+{#  {{ form.email }}#}
+{#  <p>Password</p>#}
+{#  {{ form.password }}#}
+{#  {{ form.hidden_tag() }}#}
+{#  <br>#}
+{#  <br>#}
+{#  <input type="submit" value="Login">#}
+{#</form>#}
+{% extends 'base.html' %}
+{% block title %}BCNEventer - Login{% endblock title %}
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css?family=Kaushan+Script|Fugaz+One" rel="stylesheet">
+    <style>
+@import url('https://fonts.googleapis.com/css?family=Numans');
+
+.background-image {
+  {#background-image: url('https://www.triptemptation.com/media/991e8e96-a79f-43fe-af86-10a95ecf7131/ffHrIA/Wallpapers/Barcelona/i-love-barcelona-1/2560x1440_0028_i-love-barcelona-wallpaper.jpg');#}
+  {#background-image: url('https://res.allmacwallpaper.com/get/iMac-21-inch-5K-Retina-wallpapers/Long-Expo-Barcelona-4096x2304/18514-13.jpg');#}
+  background-image: url('../static/barcelona.jpg');
+    background-size: cover;
+  display: block;
+  filter: blur(8px);
+  -webkit-filter: blur(2px);
+  height: 100%;
+  left: 0;
+  position: fixed;
+  right: 0;
+  z-index: 1;
+}
+.content {
+  {#background: rgba(255, 255, 255, 0.35);#}
+  {#border-radius: 3px;#}
+  {#box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);#}
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  {#top: 10px;#}
+  {#left: 0;#}
+  position: fixed;
+  {#margin-left: 20px;#}
+  {#margin-right: 20px;#}
+  right: 0;
+  z-index: 2;
+  {#padding: 0 10px;#}
+}
+.content2{
+    position: fixed;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    top: 1%;
+    left: 12%;
+    z-index: 2;
+}
+html,body{
+font-family: 'Numans', sans-serif;
+}
+
+.container{
+height: 100%;
+align-content: center;
+}
+
+.card{
+height: 370px;
+margin-top: 5%;
+margin-bottom: auto;
+width: 400px;
+background-color: rgba(0,0,0,0.5) !important;
+}
+
+.social_icon span{
+font-size: 60px;
+margin-left: 10px;
+color: #FFC312;
+}
+
+.social_icon span:hover{
+color: white;
+cursor: pointer;
+}
+
+.card-header h3{
+color: white;
+}
+
+.social_icon{
+position: absolute;
+right: 20px;
+top: -45px;
+}
+
+.input-group-prepend span{
+width: 50px;
+background-color: #FFC312;
+color: black;
+border:0 !important;
+}
+
+input:focus{
+outline: 0 0 0 0  !important;
+box-shadow: 0 0 0 0 !important;
+
+}
+
+.remember{
+color: white;
+}
+
+.remember input
+{
+width: 20px;
+height: 20px;
+margin-left: 15px;
+margin-right: 5px;
+}
+
+.login_btn{
+color: black;
+background-color: #FFC312;
+width: 100px;
+}
+
+.login_btn:hover{
+color: black;
+background-color: white;
+}
+.bcn {
+    font-size:40px;
+  -webkit-text-fill-color: rgba(255, 242, 254, 0.95); /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+.bcn2 {
+    font-size:56px;
+  -webkit-text-fill-color: rgba(255, 195, 15, 0.8); /* Will override color (regardless of order) */
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+.links{
+color: white;
+}
+
+.links a{
+margin-left: 4px;
+}
+</style>
+{% endblock extra_head %}
+{% block main %}
+    <div class="background-image"></div>
+<div class="container content">
+    <span class="bcn" style="text-align:center; font-family: 'Kaushan Script';">Barcelona's Events Recommender,&nbsp;</span>
+    <span  class="bcn2" style="text-align:center; font-family: 'Fugaz One'; color:darkred"><b>BCN Eventer!</b></span>
+
+	<div class="d-flex justify-content-center h-100">
+		<div class="card">
+			<div class="card-header">
+				<h3>Sign In</h3>
+				<div class="d-flex justify-content-end social_icon">
+					<span><a href="https://github.com/ADS2018UB/BCNEventer" style="color: inherit;"><i class="fab fa-github-square"></i></a></span>
+
+					<span><a href="https://trello.com/b/Z3IDOceG/agile-data-science" style="color: inherit;"><i class="fab fa-trello"></i></a></span>
+
+
+				</div>
+			</div>
+			<div class="card-body">
+				<form method="post" action="/login">
+					<div class="input-group form-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"><i class="fas fa-user"></i></span>
+						</div>
+{#						<input type="text" class="form-control" placeholder="username">#}
+                        {{ form.email(placeholder="your email", class_="form-control") }}
+					</div>
+					<div class="input-group form-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text"><i class="fas fa-key"></i></span>
+						</div>
+{#						<input type="password" class="form-control" placeholder="password">#}
+                        {{ form.password(placeholder="password", class_="form-control") }}
+					</div>
+					<div class="row align-items-center remember">
+						<input type="checkbox">Remember Me
+					</div>
+                    {{ form.hidden_tag() }}
+					<div class="form-group">
+						<input type="submit" value="Login" class="btn float-right login_btn">
+					</div>
+                                                 <div class="form-group">
+                     {% for field in server_errors %}
+                            <div class="container" style="color:red;">
+                                <strong>{{ field }}</strong>
+                            </div>
+                    {% endfor %}
+                    </div>
+				</form>
+
+			</div>
+            			<div class="card-footer">
+				<div class="d-flex justify-content-center links">
+					Don't have an account?<a href="/register">Sign Up</a>
+				</div>
+				<div class="d-flex justify-content-center">
+					<a href="#" onclick="prompt('Send us your home address! We are going to send you a reset code by post.','Gran Via de les Corts Catalanes, 585, 08007, Barcelona');return false;">Forgot your password?</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock main %}

@@ -7,7 +7,7 @@ def scrape_xceed_city(city):
     """
     Scrape xceed web for events in your city
     """
-    labels = ["description", "start time", "place", "musice style", "price"]
+    labels = ["description", "start time", "place", "musice style", "price", "category"]
     events_info = []
     city = city.lower()
      
@@ -22,8 +22,12 @@ def scrape_xceed_city(city):
         description = event.findAll("h2", {"class":"margin-0 text-bold grey-36-c cardTitle ellipsis"})[0].text
         place = event.findAll("span", {"itemprop":"name"})[0].text
         music_style = "".join(event.findAll("p", {"class":"margin-0 cardMusic grey-70-c"})[0].text.strip().split("\xa0|\xa0"))
-        price = event.findAll("button", {"class":"actionB cardButton"})[0].text
-        events_info.append([description, start_time, place, music_style, price])
+        try:
+            price = event.findAll("button", {"class":"actionB cardButton"})[0].text
+        except:
+            price = 'NA'
+        category = 'Music'
+        events_info.append([description, start_time, place, music_style, price, category])
     
 
     print("Writting xceed_{}.csv".format(city))

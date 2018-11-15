@@ -18,7 +18,7 @@ Go to your GitHub account and clone the forked repo to your computer. You can do
 ```
 git clone git@github.com:<account_name>/BCNEventer.git
 ```
-Now setup the upstream remote (to easily pull changes from the main repo) by entering this command:
+Copy `.env.example` to `.env` and fill in the variables. Now setup the upstream remote (to easily pull changes from the main repo) by entering this command:
 ```
 git remote add upstream git@github.com:ADS2018UB/BCNEventer.git
 ```

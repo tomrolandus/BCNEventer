@@ -1,8 +1,8 @@
-from flask import Flask, render_template
+from flask import render_template
 
 from flask import request, redirect, url_for
 
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import login_user, logout_user, current_user
 from .registration_form import RegForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from .user import User
@@ -63,3 +63,9 @@ class AuthController:
         if current_user.is_authenticated:
             return redirect(url_for('dashboard'))
         return redirect(url_for('login'))
+
+    def get_users(self):
+        check_me = User.objects().all()
+        if check_me:
+            return repr(check_me)
+        return 'Not found!'

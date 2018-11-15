@@ -1,9 +1,9 @@
-from dotenv import dotenv_values
+import os
 from flask import Flask
 
 
 def set_app_config(app):
-    config = dotenv_values()
+    config = os.environ
     for key in config:
         if config[key] == 'True':
             app.config[key] = True

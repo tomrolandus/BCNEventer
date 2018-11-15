@@ -2,8 +2,10 @@ import mongoengine
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from .base import Base
 
-class User(mongoengine.Document, UserMixin):
+
+class User(Base, UserMixin):
     __min_password_length = 8
     __max_password_length = 20
 

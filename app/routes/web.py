@@ -3,8 +3,10 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
+#import csv
 
 from app.models.user import User
+#from app.models.event import Event
 
 web = Blueprint('web', __name__, template_folder='/templates')
 
@@ -16,7 +18,7 @@ class RegForm(FlaskForm):
 
 def get_events():
     events = []
-    # with open('static/events_Barcelona.csv', 'rt') as csvfile:
+    #with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
     #     csv_reader = csv.reader(csvfile, delimiter=',')
     #     for row in csv_reader:
     #         new_event = Event(row[3], (row[0], row[1]), row[2])

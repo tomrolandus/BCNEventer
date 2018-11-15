@@ -1,3 +1,8 @@
+faker
+pymongo
+mongoengine
+wtforms
+werkzeug
 Flask
 Flask-Script
 python-dotenv

@@ -1,6 +1,6 @@
 import sys
 import pymongo.errors
-import scripts.library as lib
+import library as lib
 
 # Connection to Mongo DB
 try:

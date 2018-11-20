@@ -6,6 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 #import csv
 
 from app.models.user import User
+
 #from app.models.event import Event
 
 web = Blueprint('web', __name__, template_folder='/templates')
@@ -41,7 +42,7 @@ def register():
         user = User.objects(email=form.email.data).first()
         if user is None:
             try:
-                User.create(form.email.data, form.password.data)
+                User.create(form.email.data, form.password.data, 26)
             except Exception as e:
                 if str(e) == 'password_length':
                     return render_template('register.html', form=form,
@@ -71,6 +72,11 @@ def login():
 
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
+
+@web.route('/preferences')
+@login_required
+def preferences():
+    return render_template('preferences.html', name=current_user.email)
 
 @web.route('/dashboard')
 @login_required

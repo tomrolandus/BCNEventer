@@ -6,6 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 #import csv
 
 from app.models.user import User
+from scripts.user_generator import create_users
 #from app.models.event import Event
 
 web = Blueprint('web', __name__, template_folder='/templates')
@@ -72,6 +73,20 @@ def login():
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
 
+@web.route('/list-users', methods=['GET'])
+def list_users():
+    u = User.objects().all()
+    if u:
+        return repr(u)
+    return 'Not found!!'
+
+
+@web.route('/create-users', methods=['GET'])
+def create_them():
+    create_users()
+    return 'done!'
+
+
 @web.route('/dashboard')
 @login_required
 def dashboard():
@@ -84,3 +99,9 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('web.login'))
+
+@web.route('/delete-users', methods=['GET'])
+def delete_users():
+    User.drop_collection()
+    return 'done!'
+

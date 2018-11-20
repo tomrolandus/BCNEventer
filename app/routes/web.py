@@ -6,7 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 #import csv
 
 from app.models.user import User
-
+from scripts.user_generator import create_users
 #from app.models.event import Event
 
 web = Blueprint('web', __name__, template_folder='/templates')
@@ -42,7 +42,7 @@ def register():
         user = User.objects(email=form.email.data).first()
         if user is None:
             try:
-                User.create(form.email.data, form.password.data, 26)
+                User.create(form.email.data, form.password.data)
             except Exception as e:
                 if str(e) == 'password_length':
                     return render_template('register.html', form=form,
@@ -73,10 +73,19 @@ def login():
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
 
-@web.route('/preferences')
-@login_required
-def preferences():
-    return render_template('preferences.html', name=current_user.email)
+@web.route('/list-users', methods=['GET'])
+def list_users():
+    u = User.objects().all()
+    if u:
+        return repr(u)
+    return 'Not found!!'
+
+
+@web.route('/create-users', methods=['GET'])
+def create_them():
+    create_users()
+    return 'done!'
+
 
 @web.route('/dashboard')
 @login_required
@@ -90,3 +99,14 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('web.login'))
+
+@web.route('/delete-users', methods=['GET'])
+def delete_users():
+    User.drop_collection()
+    return 'done!'
+
+@web.route('/preferences')
+@login_required
+def preferences():
+    return render_template('preferences.html', name=current_user.email)
+

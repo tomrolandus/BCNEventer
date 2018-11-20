@@ -105,3 +105,8 @@ def delete_users():
     User.drop_collection()
     return 'done!'
 
+@web.route('/preferences')
+@login_required
+def preferences():
+    return render_template('preferences.html', name=current_user.email)
+

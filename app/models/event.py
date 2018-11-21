@@ -1,20 +1,15 @@
+import mongoengine
 from .base import Base
 
-from datetime import datetime
 
 class Event(Base):
-    name = ""
-    location = ""
-    coordinates = (0, 0)
-    time = ""
+    name = mongoengine.StringField()
+    description = mongoengine.StringField()
+    coordinates = mongoengine.PointField()
+    time = mongoengine.DateTimeField()
 
-    def __init__(self, name, coordinates, unixTime, *args, **values):
+    def __init__(self, name, coordinates, unix_time, *args, **values):
         super().__init__(*args, **values)
         self.name = name
         self.coordinates = coordinates
-
-        try:
-            timeStamp = int(unixTime)/1000 #divide to get second from milliseconds
-            self.time = datetime.utcfromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
-        except:
-            self.time = "unknown"
+        self.time = unix_time

@@ -11,7 +11,7 @@ except pymongo.errors.ConnectionFailure as e:
     sys.exit(1)
 
 # Set up database and collection
-db = conn['events']
+db = conn['bcneventer']
 col_opendata = db.opendata
 
 cnames = ['lat',  # 0

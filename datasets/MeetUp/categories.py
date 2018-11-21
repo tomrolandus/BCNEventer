@@ -11,4 +11,4 @@ categories = {1: 'Arts & Culture', 18: 'Book Clubs', 2: 'Career & Business',
               27: 'Photography', 28: 'Religion & Beliefs',
               29: 'Sci-Fi & Fantasy', 30: 'Singles', 31: 'Socializing',
               32: 'Sports & Recreation', 33: 'Support', 34: 'Tech',
-36: 'Writing'}
+              35: 'Writing'}

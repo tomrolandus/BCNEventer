@@ -1,12 +1,14 @@
 version: '3'
 services:
   web:
+    container_name: bcneventer_web
     build: .
     ports:
       - 5000:5000
     volumes:
       - .:/code
   db:
+    container_name: bcneventer_db
     image: mongo
     ports:
     - "27017:27017"

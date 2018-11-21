@@ -7,7 +7,10 @@ db = MongoEngine()
 
 
 class Base(Document):
-    meta = {'allow_inheritance': True}
+    meta = {
+        'allow_inheritance': True,
+        'abstract': True
+    }
 
     created_at = DateTimeField(default=datetime.now)
     updated_at = DateTimeField(default=datetime.now)

@@ -32,7 +32,7 @@
         recommendedEvents = [];
         window.onload = function () {
             // ADD THE MAP
-            mymap = L.map('mapid').setView([41.3851, 2.1734], 13);
+            mymap = L.map('mapid').setView([41.3991716, 2.1603703], 13);
             L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                 maxZoom: 18,
@@ -65,9 +65,9 @@
   <div>
       <h2 style="color: white; margin-top: 10px">Recommended Events</h2>
         <div id="mapid" style="height: 500px; width: 100%;"></div>
-        {% for r in recommended %}
+        {% for event in events %}
             <script type="text/javascript">
-                addRecommendedEvent("{{r.coordinates[0]}}", "{{r.coordinates[1]}}", "{{r.name}}");
+                addRecommendedEvent("{{event.location.coordinates[0]}}", "{{event.location.coordinates[1]}}", "{{event.name}}");
             </script>
         {% endfor %}
   </div>
@@ -79,8 +79,8 @@
             <img class="card-img-top" src="../static/event.jpg" width="200px" height="150px" alt="Card image cap">
             <div class="card-body">
                 <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>
-                <p class="card-text" style="height: 30px;">{{ event.coordinates }}</p>
-                <p class="card-text" style="height: 20px;">{{ event.time }}</p>
+                <p class="card-text" style="height: 20px;">{{ event.description }}</p>
+                <p class="card-text" style="height: 20px;">{{ event.date_time }}</p>
                 <a href="#" class="btn" style="background-color: #FFC312; color: black; border: 2px solid black;">SEE MORE</a>
             </div>
         </div>

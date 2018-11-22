@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
 
+from app.models.event import Event
 from app.models.user import User
 
 web = Blueprint('web', __name__, template_folder='/templates')
@@ -63,7 +64,7 @@ def login():
 @web.route('/dashboard')
 @login_required
 def dashboard():
-    events = []
+    events = Event.objects
     recommended = []
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended)
 

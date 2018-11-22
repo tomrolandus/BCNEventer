@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, request, render_template
+from flask import Blueprint, redirect, url_for, request, render_template, json
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
@@ -6,7 +6,7 @@ from wtforms.validators import InputRequired, Email, Length
 #import csv
 
 from app.models.user import User
-from scripts.user_generator import create_users
+# from scripts.user_generator import create_users
 #from app.models.event import Event
 
 web = Blueprint('web', __name__, template_folder='/templates')
@@ -81,10 +81,10 @@ def list_users():
     return 'Not found!!'
 
 
-@web.route('/create-users', methods=['GET'])
-def create_them():
-    create_users()
-    return 'done!'
+# @web.route('/create-users', methods=['GET'])
+# def create_them():
+#     create_users()
+#     return 'done!'
 
 
 @web.route('/dashboard')
@@ -100,13 +100,20 @@ def logout():
     logout_user()
     return redirect(url_for('web.login'))
 
+
 @web.route('/delete-users', methods=['GET'])
 def delete_users():
     User.drop_collection()
     return 'done!'
 
-@web.route('/preferences')
+
+@web.route('/preferences', methods=['GET', 'POST'])
 @login_required
 def preferences():
-    return render_template('preferences.html', name=current_user.email)
-
+    if request.method == 'GET':
+        rcats = current_user.get_preferences_keys()
+        c = [cat for cat in rcats]
+        return render_template('preferences.html', name=current_user.email, cats=json.dumps(c))
+    cats = request.form['cats'].split(',')
+    current_user.set_preferences_keys(cats)
+    return repr(current_user.get_preferences_keys())

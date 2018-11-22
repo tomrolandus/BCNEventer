@@ -19,6 +19,10 @@
     font-size: 1.5rem;
     color: white;
 }
+.texto_medium {
+    font-size: 1rem;
+    color: white;
+}
 #icone_grande {
     font-size: 8rem;
     color:#fff;
@@ -48,176 +52,24 @@
   background-color: #49247A;
   border-color: #130269;
 }
-
-.btn-purple:active,
-.btn-purple.active,
-.open .dropdown-toggle.btn-purple {
-  background-image: none;
-}
-
-.btn-purple.disabled,
-.btn-purple[disabled],
-fieldset[disabled] .btn-purple,
-.btn-purple.disabled:hover,
-.btn-purple[disabled]:hover,
-fieldset[disabled] .btn-purple:hover,
-.btn-purple.disabled:focus,
-.btn-purple[disabled]:focus,
-fieldset[disabled] .btn-purple:focus,
-.btn-purple.disabled:active,
-.btn-purple[disabled]:active,
-fieldset[disabled] .btn-purple:active,
-.btn-purple.disabled.active,
-.btn-purple[disabled].active,
-fieldset[disabled] .btn-purple.active {
-  background-color: #611BBD;
-  border-color: #130269;
-}
-
-.btn-purple .badge {
-  color: #611BBD;
-  background-color: #ffffff;
-}
-
-    .btn-samawi {
-  color: #ffffff;
-  background-color: #39B3F5;
-  border-color: #5CECFF;
-}
-
-.btn-samawi:hover,
-.btn-samawi:focus,
-.btn-samawi:active,
-.btn-samawi.active,
-.open .dropdown-toggle.btn-samawi {
-  color: #ffffff;
-  background-color: #24777A;
-  border-color: #5CECFF;
-}
-
-.btn-samawi:active,
-.btn-samawi.active,
-.open .dropdown-toggle.btn-samawi {
-  background-image: none;
-}
-
-.btn-samawi.disabled,
-.btn-samawi[disabled],
-fieldset[disabled] .btn-samawi,
-.btn-samawi.disabled:hover,
-.btn-samawi[disabled]:hover,
-fieldset[disabled] .btn-samawi:hover,
-.btn-samawi.disabled:focus,
-.btn-samawi[disabled]:focus,
-fieldset[disabled] .btn-samawi:focus,
-.btn-samawi.disabled:active,
-.btn-samawi[disabled]:active,
-fieldset[disabled] .btn-samawi:active,
-.btn-samawi.disabled.active,
-.btn-samawi[disabled].active,
-fieldset[disabled] .btn-samawi.active {
-  background-color: #39B3F5;
-  border-color: #5CECFF;
-}
-
-.btn-samawi .badge {
-  color: #39B3F5;
-  background-color: #ffffff;
-}
-
-
-    .btn-lime {
-  color: #ffffff;
-  background-color: #41CC2B;
-  border-color: #35CC2D;
-}
-
-.btn-lime:hover,
-.btn-lime:focus,
-.btn-lime:active,
-.btn-lime.active,
-.open .dropdown-toggle.btn-lime {
-  color: #ffffff;
-  background-color: #357A24;
-  border-color: #35CC2D;
-}
-
-.btn-lime:active,
-.btn-lime.active,
-.open .dropdown-toggle.btn-lime {
-  background-image: none;
-}
-
-.btn-lime.disabled,
-.btn-lime[disabled],
-fieldset[disabled] .btn-lime,
-.btn-lime.disabled:hover,
-.btn-lime[disabled]:hover,
-fieldset[disabled] .btn-lime:hover,
-.btn-lime.disabled:focus,
-.btn-lime[disabled]:focus,
-fieldset[disabled] .btn-lime:focus,
-.btn-lime.disabled:active,
-.btn-lime[disabled]:active,
-fieldset[disabled] .btn-lime:active,
-.btn-lime.disabled.active,
-.btn-lime[disabled].active,
-fieldset[disabled] .btn-lime.active {
-  background-color: #41CC2B;
-  border-color: #35CC2D;
-}
-
-.btn-lime .badge {
-  color: #41CC2B;
-  background-color: #ffffff;
-}
-
-    .btn-darkblue {
-  color: #ffffff;
-  background-color: #30618C;
-  border-color: #172547;
-}
-
-.btn-darkblue:hover,
-.btn-darkblue:focus,
-.btn-darkblue:active,
-.btn-darkblue.active,
-.open .dropdown-toggle.btn-darkblue {
-  color: #ffffff;
-  background-color: #1C384D;
-  border-color: #172547;
-}
-
-.btn-darkblue:active,
-.btn-darkblue.active,
-.open .dropdown-toggle.btn-darkblue {
-  background-image: none;
-}
-
-.btn-darkblue.disabled,
-.btn-darkblue[disabled],
-fieldset[disabled] .btn-darkblue,
-.btn-darkblue.disabled:hover,
-.btn-darkblue[disabled]:hover,
-fieldset[disabled] .btn-darkblue:hover,
-.btn-darkblue.disabled:focus,
-.btn-darkblue[disabled]:focus,
-fieldset[disabled] .btn-darkblue:focus,
-.btn-darkblue.disabled:active,
-.btn-darkblue[disabled]:active,
-fieldset[disabled] .btn-darkblue:active,
-.btn-darkblue.disabled.active,
-.btn-darkblue[disabled].active,
-fieldset[disabled] .btn-darkblue.active {
-  background-color: #30618C;
-  border-color: #172547;
-}
-
-.btn-darkblue .badge {
-  color: #30618C;
-  background-color: #ffffff;
-}
+    .cat{
+        border-color:orange;
+    }
+    .cat:hover{
+        border-color:lime;
+    }
+    
+    .cat-selected{
+        border-color:green;
+        background-color: #bbd700;
+    }
     </style>
+    <script>
+    cats = [];
+    function uCats(){s={{ cats|safe }};if(s[0].length>0)s.forEach(function(c){catC($('#content a[name='+c+']')[0]);});}
+    function catC(ref){idx = cats.indexOf(ref.name);if(idx===-1)cats.push(ref.name);else cats.splice(idx,1);$(ref).toggleClass('cat');
+    $(ref).toggleClass('cat-selected');$('#in1').attr('value', cats);return false;}
+    </script>
 {% endblock extra_head %}
 {% block main %}
       <nav class="navbar navbar-light" style="background-color: #FFC312;">
@@ -229,55 +81,75 @@ fieldset[disabled] .btn-darkblue.active {
 {#    <h1>Dashboard</h1>#}
 
   <h2 style="color: white; margin-top: 10px">Select the categories of events that suit your interest:</h2>
-        <div class="container" style="margin-top: 40px">
+
+        <div id="content" class="container" style="margin-top: 40px">
         <div class="row">
          <div class="col-md-3">
-            <a class="btn btn-block btn-lg" onclick="$(this).toggleClass('btn-primary'); return false;" href="#">
-                <i class="fa fa-users" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-plus-circle"></i> ADD Usuários</span></a>
+            <a name="1" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fab fa-alipay" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Arts & Cultures</span></a>
           </div>
           <div class="col-md-3">
-            <a class="btn btn-block btn-lg" onclick="$(this).toggleClass('btn-primary'); return false;" href="#">
-                <i class="fa fa-user" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-times-circle-o"></i> DEL Usuários</span></a>
+            <a name="2" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fa fa-user-tie" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Career & Business</span></a>
           </div>
           <div class="col-md-3">
-            <a class="btn btn-block btn-lg" onclick="$(this).toggleClass('btn-primary'); return false;" href="#">
-                <i class="fa fa-users" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-edit"></i> EDIT Usuários</span></a>
+            <a name="3" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fa fa-car" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Cars & Motorcycles</span></a>
           </div>
           <div class="col-md-3">
-            <a class="btn btn-block btn-lg" onclick="$(this).toggleClass('btn-primary'); return false;" href="#">
-                <i class="fa fa-user" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-list-ul"></i> LIST Usuários</span></a>
+            <a name="4" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fab fa-envira" id="icone_grande"></i> <br><br>
+                <span class="texto_medium"><b>Community & Environment</b></span></a>
           </div>
         </div>
+
+
+
+
         <div class="row" style="margin-top: 30px">
          <div class="col-md-3">
-            <a class="btn btn-block btn-lg btn-outline-warning" onclick="$(this).toggleClass('btn-outline-warning');$(this).toggleClass('btn-success'); return false;" href="#">
-                <i class="fa fa-users" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-plus-circle"></i> ADD Usuários</span></a>
+            <a name="5" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fa fa-play" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Dancing</span></a>
           </div>
           <div class="col-md-3">
-            <a class="btn btn-block btn-lg btn-outline-warning" onclick="$(this).toggleClass('btn-outline-warning');$(this).toggleClass('btn-success'); return false;" href="#">
-                <i class="fa fa-user" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-times-circle-o"></i> DEL Usuários</span></a>
+            <a name="6" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fa fa-graduation-cap" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Education & Learning</span></a>
           </div>
           <div class="col-md-3">
-              <input type="checkbox" name="chk1" id="item4" value="val1" class="btn btn-block btn-lg btn-outline-warning" onclick="$(this).toggleClass('btn-outline-warning');$(this).toggleClass('btn-success'); return false;" href="#">
+              <a name="8" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
 {#            <a #}
-                <i class="fa fa-users" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-edit"></i> EDIT Usuários</span>
+                <i class="fa fa-shopping-bag" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Fashion & Beauty</span>
 
-            </input>
+            </a>
           </div>
           <div class="col-md-3">
-            <a class="btn btn-block btn-lg btn-outline-warning" onclick="$(this).toggleClass('btn-outline-warning');$(this).toggleClass('btn-success'); return false;" href="#">
-                <i class="fa fa-user" id="icone_grande"></i> <br><br>
-                <span class="texto_grande"><i class="fa fa-list-ul"></i> LIST Usuários</span></a>
+            <a name="9" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                <i class="fa fa-swimmer" id="icone_grande"></i> <br><br>
+                <span class="texto_grande">Fitness</span></a>
           </div>
         </div>
-            <br><br>
+            <br>
+        <div class="row">
+
+{#            <div class="col-md-4">#}
+{#                <button style="width:100%" onclick="$('#in2').hide()" class="btn btn-lg btn-success">Click Here</button>#}
+{#            </div>#}
+
+            <div class="col-md-12">
+                <form method="post" action="/preferences">
+                    <input id="in1" type="hidden" name="cats" value="hello">
+                    <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
+                </form>
+            </div>
+        </div>
+            <br>
+
 {#                    <div class="row"style="margin-top: 30px">#}
 {#         <div class="col-md-3">#}
 {#            <a class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#mymodal">#}
@@ -312,6 +184,8 @@ fieldset[disabled] .btn-darkblue.active {
 {#            </div>#}
 {#        </div>#}
 {#    {% endfor %}#}
-
   </div>
+<script>
+$(document).ready(uCats());
+</script>
 {% endblock main %}

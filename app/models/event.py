@@ -1,20 +1,20 @@
+import mongoengine
+
+from app.models.category import Category
 from .base import Base
 
-from datetime import datetime
 
 class Event(Base):
-    name = ""
-    location = ""
-    coordinates = (0, 0)
-    time = ""
+    name = mongoengine.StringField()
+    description = mongoengine.StringField()
+    location = mongoengine.PointField()
+    date_time = mongoengine.DateTimeField()
+    category_ids = mongoengine.ListField(mongoengine.ReferenceField(Category))
 
-    def __init__(self, name, coordinates, unixTime, *args, **values):
+    def __init__(self, name='', description='', location=(0, 0), date_time=0, category_ids=None, *args, **values):
         super().__init__(*args, **values)
         self.name = name
-        self.coordinates = coordinates
-
-        try:
-            timeStamp = int(unixTime)/1000 #divide to get second from milliseconds
-            self.time = datetime.utcfromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
-        except:
-            self.time = "unknown"
+        self.description = description
+        self.location = location
+        self.date_time = date_time
+        self.category_ids = category_ids

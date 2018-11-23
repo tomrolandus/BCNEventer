@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
+from datasets.MeetUp.categories import categories
 import csv
 
 from app.models.user import User
@@ -56,14 +57,16 @@ def register():
         user = User.objects(email=form.email.data).first()
         if user is None:
             try:
-                User.create(form.email.data, form.password.data)
+                user=User.create(form.email.data, form.password.data)
             except Exception as e:
                 if str(e) == 'password_length':
                     return render_template('register.html', form=form,
                                            server_errors=['Your password should be between 8 and 20 characters long'])
                 return render_template('register.html', form=form, server_errors=['An unexpected error occured'])
-
-            return redirect(url_for('web.dashboard'))
+            if user and user.login(form.password.data):
+                login_user(user)
+                return redirect(url_for('web.dashboard'))
+            return redirect(url_for('web.preferences'))
         return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
 
     return render_template('register.html', form=form)
@@ -105,7 +108,11 @@ def create_them():
 @login_required
 def dashboard():
     events = get_events()
-    return render_template('dashboard.html', name=current_user.email, events=events)
+    ids=current_user.get_preferences_keys()
+    d={}
+    for i in ids:
+        d[categories[int(i)]]=int(i)
+    return render_template('dashboard.html', name=current_user.email, events=events, cats=d)
 
 
 @web.route('/logout', methods=['GET'])
@@ -130,4 +137,4 @@ def preferences():
         return render_template('preferences.html', name=current_user.email, cats=json.dumps(c))
     cats = request.form['cats'].split(',')
     current_user.set_preferences_keys(cats)
-    return repr(current_user.get_preferences_keys())
+    return redirect(url_for('web.dashboard'))

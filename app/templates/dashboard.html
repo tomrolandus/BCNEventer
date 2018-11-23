@@ -58,10 +58,47 @@
     <a class="navbar-brand" href="#">BCNEventer - Dashboard</a>
       <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
   </nav>
+
     <div class="background-image"></div>
+    <div class="content row">
+                <nav class="col-md-2 d-none d-md-block bg-light sidebar" style="border-top: solid 1px black">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">
+{#                  <span data-feather="home"></span>#}
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+{#                  <span data-feather="file"></span>#}
+                  Advanced Search
+                </a>
+              </li>
+
+            </ul>
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                <span>Saved preferences <span><a href="/preferences" style="font-size:0.8rem; color:darkred">[edit]</a></span></span>
+              <a class="d-flex align-items-center text-muted" href="#">
+              </a>
+            </h6>
+            <ul class="nav flex-column mb-2">
+                {% for c,i in cats.items() %}
+              <li class="nav-item">
+                <a class="nav-link" href="/cat/{{ i }}">
+{#                  <span data-feather="file-text"></span>#}
+                  {{ c }}
+                </a>
+              </li>
+                {% endfor %}
+            </ul>
+          </div>
+        </nav>
+        <div class="col-md-10">
   <div class="content container">
 {#    <h1>Dashboard</h1>#}
-
   <div>
       <h2 style="color: white; margin-top: 10px">Recommended Events</h2>
         <div id="mapid" style="height: 500px; width: 100%;"></div>
@@ -88,4 +125,5 @@
     </div>
   </div>
   </div>
+                </div></div>
 {% endblock main %}

@@ -78,8 +78,8 @@ class User(Base, UserMixin):
     def get_email(self):
         return self.email
 
-    def set_preferences(self, prefs):
-        self.preferences = prefs
+    def set_preferences_keys(self, prefs):
+        self.preferences_keys = prefs
         self.save()
 
     def get_preferences_keys(self):

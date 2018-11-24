@@ -12,6 +12,8 @@ db = MongoEngine(app)
 
 faker = Faker()
 
+Category.drop_collection()
+
 cats = [
     'Arts & Culture',
     'Book Clubs',

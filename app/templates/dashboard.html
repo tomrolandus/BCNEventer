@@ -85,11 +85,11 @@
               </a>
             </h6>
             <ul class="nav flex-column mb-2">
-                {% for c,i in cats.items() %}
+                {% for category in categories %}
               <li class="nav-item">
-                <a class="nav-link" href="/cat/{{ i }}">
+                <a class="nav-link" href="/cat/{{ category.id }}">
 {#                  <span data-feather="file-text"></span>#}
-                  {{ c }}
+                  {{ category.name }}
                 </a>
               </li>
                 {% endfor %}

@@ -4,6 +4,7 @@ import pandas as pd
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app.models.category import Category
 from datasets.MeetUp.categories import categories
 from datasets.Xceed.genres import music_genres
 from .base import Base
@@ -20,7 +21,7 @@ class User(Base, UserMixin):
     MOVIES = 'Events'
 
     ratings = pd.DataFrame({MOVIES: [], RATES: []})
-    preferences_keys = mongoengine.ListField()
+    categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
     music_genres_keys = mongoengine.ListField()
     age = mongoengine.IntField()
     gender = mongoengine.IntField()

@@ -1,42 +1,39 @@
 
-#%%
+# TODO: fix geocoding
+# TODO: convert categories to ids
+# TODO: loop oer rows of dataframe in write_db and write each row to the db
 
-## Modules
+
+#%% Modules
+import sys
+sys.path.append('./app/')
+sys.path.append('./scripts/')
+
 import pymongo
 import library as lib
+import pandas as pd
 
+#from models.event import Event
 
-## Connection to Mongo DB
+#%% Connection to Mongo DB
 try:
     conn=pymongo.MongoClient()
     print ("Connected successfully!!!")
 except pymongo.errors.ConnectionFailure as e:
     print ("Could not connect to MongoDB: %s" % e) 
 
+"""name='', description='', location=(0, 0), date_time=0, category_ids=None"""
 
-cnames = ['lat', #0
-          'long', #1
-          'event_type', #2
-          'address', #3 
-          'start_date', #4
-          'end_date', #5
-          'event_info', #6
-          'web', #7
-          'image', #8
-          'tickets', #9
-          'year', #10
-          'location', #11
-          'event_name', #12
-          'price', #13
-          'category', #14
-         ] 
+cnames = [
+    'name', # 0
+    'description', #1
+    'location', #2
+    'date_time', #3
+    'category_ids' #4
+]
+
 ## Set up database and collection
 db = conn['bcneventer']
-
-## Xceed
-col_xceed = db.exceed
-xceed = lib.load_and_prepare_data(cnames, lib.rename_cols_exceed, "../datasets/Xceed/xceed_barcelona.csv")
-lib.write_db(xceed, "Xceed", col_xceed)
 
 ## Meetup
 col_meetup = db.meetup

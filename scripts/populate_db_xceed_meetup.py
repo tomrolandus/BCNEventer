@@ -9,11 +9,9 @@ import sys
 sys.path.append('./app/')
 sys.path.append('./scripts/')
 
+#%%
 import pymongo
 import library as lib
-import pandas as pd
-
-#from models.event import Event
 
 #%% Connection to Mongo DB
 try:
@@ -32,10 +30,15 @@ cnames = [
     'category_ids' #4
 ]
 
-## Set up database and collection
+#%% Set up database and collection
 db = conn['bcneventer']
 
-## Meetup
+#%% Meetup
 col_meetup = db.meetup
 meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv", delimiter_ = ";")
 lib.write_db(meetup, "Meetup", col_meetup)
+
+## Xceed
+#col_xceed = db.exceed
+#xceed = lib.load_and_prepare_data(cnames, lib.rename_cols_exceed, "../datasets/Xceed/xceed_barcelona.csv")
+#lib.write_db(xceed, "Xceed", col_xceed)

@@ -23,7 +23,7 @@ conn = lib.connect_to_local_db()
 db = conn['bcneventer']
 
 #%% Meetup
-col_meetup = db.meetup
+col_meetup = db.event
 meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv", delimiter_ = ";")
 lib.write_db(meetup, "Meetup", col_meetup)
 

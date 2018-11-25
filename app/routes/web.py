@@ -1,9 +1,13 @@
+import json
+
+from bson import ObjectId
 from flask import Blueprint, redirect, url_for, request, render_template
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
 
+from app.models.category import Category
 from app.models.event import Event
 from app.models.user import User
 
@@ -66,7 +70,9 @@ def login():
 def dashboard():
     events = Event.objects
     recommended = []
-    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended)
+
+    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
+                           categories=current_user.categories)
 
 
 @web.route('/logout')
@@ -74,3 +80,25 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for('web.login'))
+
+
+@web.route('/preferences', methods=['GET', 'POST'])
+@login_required
+def preferences():
+    if request.method == 'GET':
+        all_categories = Category.objects
+        category_ids = [str(category.id) for category in current_user.categories]
+
+        return render_template('preferences.html', name=current_user.email,
+                               categories=[category.as_json() for category in all_categories],
+                               user_category_ids=category_ids)
+
+    form_string = request.form['categories']
+    if form_string != '':
+        raw_category_ids = form_string.split(',')
+        category_ids = [ObjectId(category_id) for category_id in raw_category_ids]
+        current_user.update(categories=category_ids)
+    else:
+        current_user.update(categories=None)
+
+    return redirect(url_for('web.dashboard'))

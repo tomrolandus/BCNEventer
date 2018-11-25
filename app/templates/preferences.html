@@ -1,191 +1,137 @@
 {% extends 'base.html' %}
 {% block title %}BCNEventer - Personal Preferences{% endblock title %}
 {% block extra_head %}
-    <style>
-.background-image {
-    background-image: url('../static/barcelona.jpg');
-    background-size: cover;
-  display: block;
-  -webkit-filter: blur(5px);
-    filter: blur(5px);
-  height: 100%;
-  left: 0;
-  position: fixed;
-  right: 0;
-  z-index: 0;
-    opacity: 0.2;
-}
-.texto_grande {
-    font-size: 1.5rem;
-    color: white;
-}
-.texto_medium {
-    font-size: 1rem;
-    color: white;
-}
-#icone_grande {
-    font-size: 8rem;
-    color:#fff;
-}
-
-.check
-{
-    opacity:0.5;
-	color:#996;
-
-}
-.check2{
-    background-color: #ffba41;
-}
-.btn-purple {
-  color: #ffffff;
-  background-color: #611BBD;
-  border-color: #130269;
-}
-
-.btn-purple:hover,
-.btn-purple:focus,
-.btn-purple:active,
-.btn-purple.active,
-.open .dropdown-toggle.btn-purple {
-  color: #ffffff;
-  background-color: #49247A;
-  border-color: #130269;
-}
-    .cat{
-        border-color:orange;
+<style>
+    .background-image {
+        background-image: url('../static/barcelona.jpg');
+        background-size: cover;
+        display: block;
+        -webkit-filter: blur(5px);
+        filter: blur(5px);
+        height: 100%;
+        left: 0;
+        position: fixed;
+        right: 0;
+        z-index: 0;
+        opacity: 0.2;
     }
-    .cat:hover{
-        border-color:lime;
+
+    .texto_grande {
+        font-size: 1.5rem;
+        color: white;
     }
-    
-    .cat-selected{
-        border-color:green;
+
+    .texto_medium {
+        font-size: 1rem;
+        color: white;
+    }
+
+    #icone_grande {
+        font-size: 8rem;
+        color: #fff;
+    }
+
+    .check {
+        opacity: 0.5;
+        color: #996;
+
+    }
+
+    .check2 {
+        background-color: #ffba41;
+    }
+
+    .btn-purple {
+        color: #ffffff;
+        background-color: #611BBD;
+        border-color: #130269;
+    }
+
+    .btn-purple:hover,
+    .btn-purple:focus,
+    .btn-purple:active,
+    .btn-purple.active,
+    .open .dropdown-toggle.btn-purple {
+        color: #ffffff;
+        background-color: #49247A;
+        border-color: #130269;
+    }
+
+    .cat {
+        border-color: orange;
+    }
+
+    .cat:hover {
+        border-color: lime;
+    }
+
+    .cat-selected {
+        border-color: green;
         background-color: #bbd700;
     }
-    </style>
-    <script>
-    cats = [];
-    function uCats(){s={{ cats|safe }};if(s[0].length>0)s.forEach(function(c){catC($('#content a[name='+c+']')[0]);});}
-    function catC(ref){idx = cats.indexOf(ref.name);if(idx===-1)cats.push(ref.name);else cats.splice(idx,1);$(ref).toggleClass('cat');
-    $(ref).toggleClass('cat-selected');$('#in1').attr('value', cats);return false;}
-    </script>
+</style>
+<script>
+    let selectedCategoryIds = {{ user_category_ids|safe }};
+    let categories = {{ categories|tojson|safe }};
+
+    function initCat() {
+        selectedCategoryIds.forEach(id => {
+            let ref = $('#content a[name='+id+']')[0];
+            $(ref).toggleClass('cat');
+            $(ref).toggleClass('cat-selected');
+        });
+
+        $('#in1').attr('value', selectedCategoryIds);
+    }
+
+    function catC(ref) {
+        idx = selectedCategoryIds.indexOf(ref.name);
+        if (idx === -1) selectedCategoryIds.push(ref.name); else selectedCategoryIds.splice(idx, 1);
+        $(ref).toggleClass('cat');
+        $(ref).toggleClass('cat-selected');
+        $('#in1').attr('value', selectedCategoryIds);
+        return false;
+    }
+</script>
 {% endblock extra_head %}
 {% block main %}
-      <nav class="navbar navbar-light" style="background-color: #FFC312;">
+<nav class="navbar navbar-light" style="background-color: #FFC312;">
     <a class="navbar-brand" href="#">BCNEventer - Personal Preferences</a>
-      <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
-  </nav>
-    <div class="background-image"></div>
-  <div class="content container">
-{#    <h1>Dashboard</h1>#}
+    <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
+</nav>
+<div class="background-image"></div>
+<div class="content container">
+    {# <h1>Dashboard</h1>#}
 
-  <h2 style="color: white; margin-top: 10px">Select the categories of events that suit your interest:</h2>
+    <h2 style="color: white; margin-top: 10px">Select the categories of events that suit your interest:</h2>
 
-        <div id="content" class="container" style="margin-top: 40px">
-        <div class="row">
-         <div class="col-md-3">
-            <a name="1" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fab fa-alipay" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Arts & Cultures</span></a>
-          </div>
-          <div class="col-md-3">
-            <a name="2" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fa fa-user-tie" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Career & Business</span></a>
-          </div>
-          <div class="col-md-3">
-            <a name="3" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fa fa-car" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Cars & Motorcycles</span></a>
-          </div>
-          <div class="col-md-3">
-            <a name="4" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fab fa-envira" id="icone_grande"></i> <br><br>
-                <span class="texto_medium"><b>Community & Environment</b></span></a>
-          </div>
-        </div>
+    <div id="content" class="container" style="margin-top: 40px">
+        {% for category in categories %}
+            {% if (loop.index-1) % 4 == 0 %}
+                <div class="row mb-3">
+            {% endif %}
 
-
-
-
-        <div class="row" style="margin-top: 30px">
-         <div class="col-md-3">
-            <a name="5" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fa fa-play" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Dancing</span></a>
-          </div>
-          <div class="col-md-3">
-            <a name="6" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fa fa-graduation-cap" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Education & Learning</span></a>
-          </div>
-          <div class="col-md-3">
-              <a name="8" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-{#            <a #}
-                <i class="fa fa-shopping-bag" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Fashion & Beauty</span>
-
-            </a>
-          </div>
-          <div class="col-md-3">
-            <a name="9" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                <i class="fa fa-swimmer" id="icone_grande"></i> <br><br>
-                <span class="texto_grande">Fitness</span></a>
-          </div>
-        </div>
-            <br>
-        <div class="row">
-
-{#            <div class="col-md-4">#}
-{#                <button style="width:100%" onclick="$('#in2').hide()" class="btn btn-lg btn-success">Click Here</button>#}
-{#            </div>#}
-
-            <div class="col-md-12">
-                <form method="post" action="/preferences">
-                    <input id="in1" type="hidden" name="cats" value="hello">
-                    <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
-                </form>
+            <div class="col-md-3">
+                <a name="{{ category.id }}" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
+                    <span class="texto_medium">{{ category.name }}</span></a>
             </div>
-        </div>
-            <br>
 
-{#                    <div class="row"style="margin-top: 30px">#}
-{#         <div class="col-md-3">#}
-{#            <a class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#mymodal">#}
-{#                <i class="fa fa-users" id="icone_grande"></i> <br><br>#}
-{#                <span class="texto_grande"><i class="fa fa-plus-circle"></i> ADD Usuários</span></a>#}
-{#          </div>#}
-{#          <div class="col-md-3">#}
-{#            <a class="btn btn-block btn-lg btn-danger" data-toggle="modal" data-target="#mymodal">#}
-{#                <i class="fa fa-user" id="icone_grande"></i> <br><br>#}
-{#                <span class="texto_grande"><i class="fa fa-times-circle-o"></i> DEL Usuários</span></a>#}
-{#          </div>#}
-{#          <div class="col-md-3">#}
-{#            <a class="btn btn-block btn-lg btn-primary" data-toggle="modal" data-target="#mymodal">#}
-{#                <i class="fa fa-users" id="icone_grande"></i> <br><br>#}
-{#                <span class="texto_grande"><i class="fa fa-edit"></i> EDIT Usuários</span></a>#}
-{#          </div>#}
-{#          <div class="col-md-3">#}
-{#            <a class="btn btn-block btn-lg btn-warning" data-toggle="modal" data-target="#mymodal">#}
-{#                <i class="fa fa-user" id="icone_grande"></i> <br><br>#}
-{#                <span class="texto_grande"><i class="fa fa-list-ul"></i> LIST Usuários</span></a>#}
-{#          </div>#}
-{#        </div>#}
+            {% if loop.index % 4 == 0 %}
+                </div>
+            {% endif %}
+
+        {% endfor %}
+
+        <div class="col-md-12 mt-3">
+            <form method="post" action="/preferences">
+                <input id="in1" type="hidden" name="categories" value="">
+                <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
+            </form>
         </div>
-{#    {% for event in events %}#}
-{#        <div class="card" style="width: 15rem; border: 2px solid black;">#}
-{#            <img class="card-img-top" src="../static/event.jpg" width="200px" height="150px" alt="Card image cap">#}
-{#            <div class="card-body">#}
-{#                <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>#}
-{#                <p class="card-text" style="height: 30px;">{{ event.coordinates }}</p>#}
-{#                <p class="card-text" style="height: 20px;">{{ event.time }}</p>#}
-{#                <a href="#" class="btn" style="background-color: #FFC312; color: black; border: 2px solid black;">SEE MORE</a>#}
-{#            </div>#}
-{#        </div>#}
-{#    {% endfor %}#}
-  </div>
+    </div>
+    <br>
+</div>
 <script>
-$(document).ready(uCats());
+    $(document).ready(initCat());
 </script>
 {% endblock main %}

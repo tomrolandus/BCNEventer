@@ -7,12 +7,13 @@ from geopy.extra.rate_limiter import RateLimiter
 
 
 import sys
-sys.path.append('./app/')
+sys.path.append('../')
 sys.path.append('./scripts/')
 
 from datetime import datetime
-#from models.event import Event
 
+from app.models.event import Event
+from app.models.category import Category
 
 #%% Helpers
 def connect_to_prod_db():
@@ -22,7 +23,7 @@ def connect_to_prod_db():
         with open("../credentials.txt", 'r', encoding='utf-8') as f:
             [name, password, url, dbname] = f.read().splitlines()
         conn = pymongo.MongoClient("mongodb://{}:{}@{}/{}".format(name, password, url, dbname))
-        print("Connected successfully!!!")
+        print("Writing data to production db...")
         return conn
 
     except pymongo.errors.ConnectionFailure as e:
@@ -32,19 +33,22 @@ def connect_to_local_db():
     # %% Connection to Mongo DB
     try:
         conn = pymongo.MongoClient()
-        print("Connected successfully!!!")
+        print("Writing data to local db...")
         return conn
     except pymongo.errors.ConnectionFailure as e:
         print("Could not connect to MongoDB: %s" % e)
 
-def query_categories_from_prod():
+def query_category_ids(cat_ids_from_prod):
     """
     Queries production db and returns
     :return: dict
         with key = category_name
         with value = category_id
     """
-    db_conn = connect_to_prod_db()
+    if cat_ids_from_prod:
+        db_conn = connect_to_prod_db()
+    else:
+        db_conn = connect_to_local_db()
     db_prod = db_conn['bcneventer'].category.find()
     cat_to_id = {}
     for elem in db_prod:
@@ -52,8 +56,8 @@ def query_categories_from_prod():
 
     return cat_to_id
 
-def convert_category_to_id(data):
-    cat_to_id = query_categories_from_prod()
+def convert_category_to_id(data, cat_ids_from_prod):
+    cat_to_id = query_category_ids(cat_ids_from_prod)
     data.category_ids = [cat_to_id[cat] for cat in data.category_ids]
     return data
 
@@ -62,19 +66,23 @@ def drop_columns(data, cnames):
     data = data.drop(drop_columns, axis = 1)
     return(data)
 
-def load_and_prepare_data(cnames, rename_cols_fct, path, delimiter_ = None):
+def load_and_prepare_data(cnames, rename_cols_fct, path, cat_ids_from_prod, delimiter_ = None):
     if delimiter_ is None: data = pd.read_csv(path)
     else: data = pd.read_csv(path, delimiter=delimiter_)
     data.dropna(inplace = True)
     data = rename_cols_fct(cnames, data)
     data = drop_columns(data, cnames)
-    data = convert_category_to_id(data)
-    data['created_at'] = datetime.now()
-    data['updated_at'] = datetime.now()
+    data = convert_category_to_id(data, cat_ids_from_prod)
     return(data)
 
 def rename_cols_meetup(cnames, data):
-    location = list(zip(data.coordinates0, data.coordinates2))
+    location = []
+    for (loc1, loc2) in zip(data.coordinates0, data.coordinates2):
+        try:
+            location.append((float(loc1), float(loc2)))
+        except:
+            location.append((0,0))
+
     data["location"] = location
     data = data.rename(columns={'Event':cnames[0],
                                 'location': cnames[2],
@@ -94,15 +102,19 @@ def rename_cols_exceed(cnames, data):
     # add columns for coordinates, as given by geocoding the location
     data['lat'], data['long'] = zip(*data['place'].map(getCoordinates))
     return(data)
-def write_db(data, data_name, collection):
-    try:
-        collection.insert_many(data.to_dict("records"))
-        print("%s data successfully written to DB!!!" % data_name)
-    except pymongo.errors.WriteError as e:
-        print("Could not write %s data to DB: %s" % (data_name, e))
+
+def write_df_to_db(data):
+    for i in range(data.shape[0]):
+        event = Event(data.iloc[i]['name'],
+                      data.iloc[i]['description'],
+                      data.iloc[i]['location'],
+                      data.iloc[i]['date_time'],
+                      [data.iloc[i]['category_ids']]).save()
+    print("Events successfully written to db!")
 
 geolocator = Nominatim(user_agent="bcneventer")
 geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+
 def getAddress(lat, long):
     try:
         if lat == 'None' or long == 'None':
@@ -114,6 +126,7 @@ def getAddress(lat, long):
             return address.split(', Barcelona')[0]
     except:
         return ""
+
 def getCoordinates(location):
     try:
         if 'Barcelona' not in location:

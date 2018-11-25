@@ -1,19 +1,21 @@
 
 # TODO: fix geocoding
-# TODO: convert categories to ids
-# TODO: loop oer rows of dataframe in write_db and write each row to the db
-
 
 #%% Modules
 import library as lib
 import sys
-sys.path.append('./scripts/')
+sys.path.append('../')
+
+
+from flask import Flask
+from flask_mongoengine import MongoEngine
+
+from app.models.category import Category
 
 #%% Parameters
 write_production = False
-if len(sys.argv) == 2 and sys.argv[1] == 'True':
-    # calling script with 'python <script.py> True' will write to the prod_db
-    print("Write data to the production db!")
+if len(sys.argv) == 2 and sys.argv[1] == 'production':
+    # calling script with 'python <script.py> production' will write to the prod_db
     write_production = True
 
 cnames = [
@@ -24,17 +26,30 @@ cnames = [
     'category_ids' #4
 ]
 
-#%% Connect to db and create collection
+#%% Connect to db
+app = Flask(__name__)
+app.config['MONGODB_DB'] = 'bcneventer'
 if write_production:
-    conn = lib.connect_to_prod_db()
+    with open("../credentials.txt", 'r', encoding='utf-8') as f:
+        [name, password, url, dbname] = f.read().splitlines()
+    app.config['MONGODB_HOST'] = "mongodb://{}:{}@{}/{}".format(name, password, url, dbname)
+    print("Connected successfully!!!")
+    query_category_ids_from_prod = True
 else:
-    conn = lib.connect_to_local_db()
-db = conn['bcneventer']
+    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+    print("Connected successfully!!!")
+    query_category_ids_from_prod = False
+db = MongoEngine(app)
 
 #%% Meetup
-col_meetup = db.event
-meetup = lib.load_and_prepare_data(cnames, lib.rename_cols_meetup, "../datasets/MeetUp/events_Barcelona.csv", delimiter_ = ";")
-lib.write_db(meetup, "Meetup", col_meetup)
+meetup = lib.load_and_prepare_data(cnames,
+                                   lib.rename_cols_meetup,
+                                   "../datasets/MeetUp/events_Barcelona.csv",
+                                   delimiter_ = ";",
+                                   cat_ids_from_prod = query_category_ids_from_prod)
+lib.write_df_to_db(meetup)
+
+
 
 ## Xceed
 #col_xceed = db.exceed

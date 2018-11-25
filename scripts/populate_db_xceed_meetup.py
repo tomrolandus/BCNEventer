@@ -10,6 +10,12 @@ import sys
 sys.path.append('./scripts/')
 
 #%% Parameters
+write_production = False
+if len(sys.argv) == 2 and sys.argv[1] == 'True':
+    # calling script with 'python <script.py> True' will write to the prod_db
+    print("Write data to the production db!")
+    write_production = True
+
 cnames = [
     'name', # 0
     'description', #1
@@ -19,7 +25,10 @@ cnames = [
 ]
 
 #%% Connect to db and create collection
-conn = lib.connect_to_local_db()
+if write_production:
+    conn = lib.connect_to_prod_db()
+else:
+    conn = lib.connect_to_local_db()
 db = conn['bcneventer']
 
 #%% Meetup

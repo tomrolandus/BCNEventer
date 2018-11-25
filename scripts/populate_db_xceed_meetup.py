@@ -5,23 +5,11 @@
 
 
 #%% Modules
+import library as lib
 import sys
-sys.path.append('./app/')
 sys.path.append('./scripts/')
 
-#%%
-import pymongo
-import library as lib
-
-#%% Connection to Mongo DB
-try:
-    conn=pymongo.MongoClient()
-    print ("Connected successfully!!!")
-except pymongo.errors.ConnectionFailure as e:
-    print ("Could not connect to MongoDB: %s" % e) 
-
-"""name='', description='', location=(0, 0), date_time=0, category_ids=None"""
-
+#%% Parameters
 cnames = [
     'name', # 0
     'description', #1
@@ -30,7 +18,8 @@ cnames = [
     'category_ids' #4
 ]
 
-#%% Set up database and collection
+#%% Connect to db and create collection
+conn = lib.connect_to_local_db()
 db = conn['bcneventer']
 
 #%% Meetup

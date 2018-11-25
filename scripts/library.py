@@ -14,13 +14,7 @@ from datetime import datetime
 #from models.event import Event
 
 #%% Helpers
-def query_categories_from_prod():
-    """
-    Queries prodcution db and returns
-    :return: dict
-        with key = category_name
-        with value = category_id
-    """
+def connect_to_prod_db():
     try:
         # use your database name, user and password here:
         # mongodb://<dbuser>:<dbpassword>@<mlab_url>.mlab.com:57066/<database_name>
@@ -28,11 +22,29 @@ def query_categories_from_prod():
             [name, password, url, dbname] = f.read().splitlines()
         conn = pymongo.MongoClient("mongodb://{}:{}@{}/{}".format(name, password, url, dbname))
         print("Connected successfully!!!")
+        return conn
 
     except pymongo.errors.ConnectionFailure as e:
         print("Could not connect to MongoDB: %s" % e)
 
-    db_prod = conn['bcneventer'].category.find()
+def connect_to_local_db():
+    # %% Connection to Mongo DB
+    try:
+        conn = pymongo.MongoClient()
+        print("Connected successfully!!!")
+        return conn
+    except pymongo.errors.ConnectionFailure as e:
+        print("Could not connect to MongoDB: %s" % e)
+
+def query_categories_from_prod():
+    """
+    Queries production db and returns
+    :return: dict
+        with key = category_name
+        with value = category_id
+    """
+    db_conn = connect_to_prod_db()
+    db_prod = db_conn['bcneventer'].category.find()
     cat_to_id = {}
     for elem in db_prod:
         cat_to_id[elem['name']] = elem['_id']
@@ -74,13 +86,6 @@ def rename_cols_meetup(cnames, data):
     return(data)
 
 def rename_cols_exceed(cnames, data):
-    """cnames = [
-        'name',  # 0
-        'description',  # 1
-        'location',  # 2
-        'date_time',  # 3
-        'category_ids'  # 4
-    ]"""
     data = data.rename(columns={'description':cnames[0], # map description from csv to cnames[0] = name in output
                                 'start time':cnames[3]
                                 })

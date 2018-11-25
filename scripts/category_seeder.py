@@ -2,6 +2,9 @@ from faker import Faker
 from flask import Flask
 from flask_mongoengine import MongoEngine
 
+import sys
+sys.path.append('../')
+
 from app.models.category import Category
 
 app = Flask(__name__)

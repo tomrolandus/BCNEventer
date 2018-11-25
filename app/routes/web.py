@@ -23,7 +23,7 @@ def get_events():
     with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
         for row in csv_reader:
-            new_event = Event(row[3], (row[0], row[1]), row[2])
+            new_event = Event(name=row[3], coordinates=(row[0], row[1]), date_time=row[2])
             events.append(new_event)
     return events
 
@@ -35,7 +35,7 @@ def get_recommended_events():
         for row in csv_reader:
             if (row[0] == 'None' or row[0] == '0'):
                 continue
-            new_event = Event(row[3], (row[0], row[1]), row[2])
+            new_event = Event(name=row[3], coordinates=(row[0], row[1]), date_time=row[2])
             events.append(new_event)
             cnt += 1
             if (cnt == 10):

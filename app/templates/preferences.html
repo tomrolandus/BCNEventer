@@ -53,15 +53,15 @@
   border-color: #130269;
 }
     .cat{
-        border-color:orange;
+        border-color:black;
     }
     .cat:hover{
-        border-color:lime;
+        border-color:#FFC312;
     }
     
     .cat-selected{
-        border-color:green;
-        background-color: #bbd700;
+        border-color:black;
+        background-color: #FFC312;
     }
     </style>
     <script>
@@ -139,12 +139,12 @@
 
 {#            <div class="col-md-4">#}
 {#                <button style="width:100%" onclick="$('#in2').hide()" class="btn btn-lg btn-success">Click Here</button>#}
-{#            </div>#}
+{#            </div>#} s
 
             <div class="col-md-12">
                 <form method="post" action="/preferences">
                     <input id="in1" type="hidden" name="cats" value="hello">
-                    <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
+                    <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%; background-color: transparent; color: white; border-color: white">Save</button>
                 </form>
             </div>
         </div>

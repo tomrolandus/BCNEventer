@@ -41,9 +41,18 @@ else:
     query_category_ids_from_prod = False
 db = MongoEngine(app)
 
+## Xceed
+xceed = lib.load_and_prepare_data(cnames,
+                                  lib.format_cols_exceed,
+                                  "../datasets/Xceed/xceed_barcelona.csv",
+                                  cat_ids_from_prod = query_category_ids_from_prod)
+lib.write_df_to_db(xceed)
+
+print("Finished with Xceed, continue with Meetup...")
+
 #%% Meetup
 meetup = lib.load_and_prepare_data(cnames,
-                                   lib.rename_cols_meetup,
+                                   lib.format_cols_meetup,
                                    "../datasets/MeetUp/events_Barcelona.csv",
                                    delimiter_ = ";",
                                    cat_ids_from_prod = query_category_ids_from_prod)
@@ -51,7 +60,3 @@ lib.write_df_to_db(meetup)
 
 
 
-## Xceed
-#col_xceed = db.exceed
-#xceed = lib.load_and_prepare_data(cnames, lib.rename_cols_exceed, "../datasets/Xceed/xceed_barcelona.csv")
-#lib.write_db(xceed, "Xceed", col_xceed)

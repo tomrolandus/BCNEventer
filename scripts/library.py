@@ -66,16 +66,39 @@ def drop_columns(data, cnames):
     data = data.drop(drop_columns, axis = 1)
     return(data)
 
-def load_and_prepare_data(cnames, rename_cols_fct, path, cat_ids_from_prod, delimiter_ = None):
+def convert_month_to_num(month):
+    dict = {
+        'January' : '01',
+        'February' : '02',
+        'March' : '03',
+        'April' : '04',
+        'May' : '05',
+        'June' : '06',
+        'July' : '07',
+        'August' : '08',
+        'September' : '09',
+        'October' : '10',
+        'November' : '11',
+        'December' : '12'}
+    return dict[month]
+
+
+def load_and_prepare_data(cnames, format_cols_fct, path, cat_ids_from_prod, delimiter_ = None):
+
     if delimiter_ is None: data = pd.read_csv(path)
     else: data = pd.read_csv(path, delimiter=delimiter_)
+
     data.dropna(inplace = True)
-    data = rename_cols_fct(cnames, data)
+
+    data = format_cols_fct(cnames, data)
     data = drop_columns(data, cnames)
     data = convert_category_to_id(data, cat_ids_from_prod)
     return(data)
 
-def rename_cols_meetup(cnames, data):
+def format_cols_meetup(cnames, data):
+    geolocator = Nominatim(user_agent="bcneventer")
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+
     location = []
     for (loc1, loc2) in zip(data.coordinates0, data.coordinates2):
         try:
@@ -91,16 +114,33 @@ def rename_cols_meetup(cnames, data):
                                 })
     data.date_time = pd.to_datetime(data.date_time, unit='ms').astype(str)
     # add the address as the description column, as given by reverse geocoding the coordinates
-    #data[cnames[1]]  = [getAddress(str(location[0]),str(location[1])) for location in data.location]
-    data[cnames[1]] = "no description"
+    data[cnames[1]]  = [getAddress(str(location[0]),str(location[1])) for location in data.location]
+    #data[cnames[1]] = "no description"
     return(data)
 
-def rename_cols_exceed(cnames, data):
+def format_xceed_date(date):
+    day = date.split(", ")[1].split(" ")[0]
+    month = convert_month_to_num(date.split(", ")[1].split(" ")[1])
+    year = "2018"
+    date = year + "-" + month + "-" + day
+    date_time = datetime.strptime(date, '%Y-%m-%d')
+    return(date_time)
+
+def format_cols_exceed(cnames, data):
+    geolocator = Nominatim(user_agent="bcneventer")
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
     data = data.rename(columns={'description':cnames[0], # map description from csv to cnames[0] = name in output
                                 'start time':cnames[3]
                                 })
+    data['date_time'] = [format_xceed_date(date) for date in data['date_time']]
+
     # add columns for coordinates, as given by geocoding the location
-    data['lat'], data['long'] = zip(*data['place'].map(getCoordinates))
+    lat, long = zip(*data['place'].map(getCoordinates))
+    data[cnames[2]] = [(float(lat_), float(long_)) for (lat_, long_) in zip(lat, long)]
+    data[cnames[4]] = "Music"
+    data[cnames[1]] = [getAddress(str(location[0]), str(location[1])) for location in data.location]
+
+    #data[cnames[1]] = "no description"
     return(data)
 
 def write_df_to_db(data):
@@ -112,8 +152,6 @@ def write_df_to_db(data):
                       [data.iloc[i]['category_ids']]).save()
     print("Events successfully written to db!")
 
-geolocator = Nominatim(user_agent="bcneventer")
-geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
 
 def getAddress(lat, long):
     try:

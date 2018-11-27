@@ -91,7 +91,8 @@ def rename_cols_meetup(cnames, data):
                                 })
     data.date_time = pd.to_datetime(data.date_time, unit='ms').astype(str)
     # add the address as the description column, as given by reverse geocoding the coordinates
-    data[cnames[1]]  = [getAddress(str(location[0]),str(location[1])) for location in data.location]
+    #data[cnames[1]]  = [getAddress(str(location[0]),str(location[1])) for location in data.location]
+    data[cnames[1]] = "no description"
     return(data)
 
 def rename_cols_exceed(cnames, data):

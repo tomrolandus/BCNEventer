@@ -1,9 +1,12 @@
-import mongoengine, pandas as pd
+import mongoengine
+import numpy as np
+import pandas as pd
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from app.models.category import Category
 from datasets.MeetUp.categories import categories
 from datasets.Xceed.genres import music_genres
-import numpy as np
 from .base import Base
 
 
@@ -18,14 +21,10 @@ class User(Base, UserMixin):
     MOVIES = 'Events'
 
     ratings = pd.DataFrame({MOVIES: [], RATES: []})
-    preferences_keys = mongoengine.ListField()
+    categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
     music_genres_keys = mongoengine.ListField()
     age = mongoengine.IntField()
     gender = mongoengine.IntField()
-
-
-
-
 
     @staticmethod
     def create(email, password):
@@ -53,9 +52,9 @@ class User(Base, UserMixin):
         for genre in self.music_genres_keys:
             genres += '-' + str(genre)
 
-        return 'email: '+self.email + "<br>Preference keys: " +  prefs + "<br>Music genres keys: " +\
+        return 'email: ' + self.email + "<br>Preference keys: " + prefs + "<br>Music genres keys: " + \
                genres + "<br>Gender: " + str(self.gender) + "<br>Age: " + str(self.age) + "<br><br>"
-        #+', password: '+self.password
+        # +', password: '+self.password
 
     def rate(self, movie, rating):
         try:
@@ -78,8 +77,8 @@ class User(Base, UserMixin):
     def get_email(self):
         return self.email
 
-    def set_preferences_keys(self, prefs):
-        self.preferences_keys = prefs
+    def set_preferences(self, prefs):
+        self.preferences = prefs
         self.save()
 
     def get_preferences_keys(self):
@@ -88,11 +87,10 @@ class User(Base, UserMixin):
     def get_preferences_names(self):
         return [categories[i] for i in self.preferences_keys]
 
-
     def get_age(self):
         return self.age
 
-    def set_age(self,age):
+    def set_age(self, age):
         self.age = age
         self.save()
 
@@ -103,7 +101,6 @@ class User(Base, UserMixin):
         self.gender = gender
         self.save()
 
-
     def set_music_genres(self, genres):
         self.music_genres = genres
         self.save()
@@ -113,7 +110,6 @@ class User(Base, UserMixin):
 
     def get_music_genres_names(self):
         return [music_genres[i] for i in self.music_genres_keys]
-
 
     def _create_music_persona(self, persona_nb=0):
         if persona_nb == 0:
@@ -138,7 +134,6 @@ class User(Base, UserMixin):
             self.music_genres_keys = [3, 10, 11, 14, 7]
             # self.music_genres = ['deep house','hip hop','r&b', 'urban','electro']
 
-
     def _randomly_modify_music_genres(self, nb_to_add=2, nb_to_remove=2):
         not_selected_genres = list(set(music_genres) ^ set(self.music_genres_keys))
 
@@ -161,8 +156,8 @@ class User(Base, UserMixin):
         self._create_preferences_persona()
         self._randomly_modify_preferences()
         self._randomly_modify_music_genres()
-        self.set_age(np.random.randint(14,75))
-        self.set_gender(np.random.randint(0,3))
+        self.set_age(np.random.randint(14, 75))
+        self.set_gender(np.random.randint(0, 3))
 
         self.save()
 
@@ -218,6 +213,3 @@ class User(Base, UserMixin):
             self.preferences_keys = [5, 20, 4, 10, 11, 21, 25, 31, 33]
             # self.preferences = ["Dancing","Movies & Film","Community & Environment","Food & Drink",
             #                      "Games","Music","Parents & Family","Socializing","Support"]
-
-
-

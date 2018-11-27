@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 from app.models.user import User
 from flask import Flask
 from flask_mongoengine import MongoEngine

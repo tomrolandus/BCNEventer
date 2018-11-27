@@ -1,14 +1,15 @@
-from flask import Blueprint, redirect, url_for, request, render_template, json
+import json
+
+from bson import ObjectId
+from flask import Blueprint, redirect, url_for, request, render_template
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
-from datasets.MeetUp.categories import categories
-import csv
 
-from app.models.user import User
-# from scripts.user_generator import create_users
+from app.models.category import Category
 from app.models.event import Event
+from app.models.user import User
 
 web = Blueprint('web', __name__, template_folder='/templates')
 
@@ -17,30 +18,6 @@ class RegForm(FlaskForm):
     email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=30)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=20)])
 
-
-def get_events():
-    events = []
-    with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
-        csv_reader = csv.reader(csvfile, delimiter=',')
-        for row in csv_reader:
-            new_event = Event(name=row[3], coordinates=(row[0], row[1]), date_time=row[2])
-            events.append(new_event)
-    return events
-
-def get_recommended_events():
-    events = []
-    cnt = 0
-    with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
-        csv_reader = csv.reader(csvfile, delimiter=',')
-        for row in csv_reader:
-            if (row[0] == 'None' or row[0] == '0'):
-                continue
-            new_event = Event(name=row[3], coordinates=(row[0], row[1]), date_time=row[2])
-            events.append(new_event)
-            cnt += 1
-            if (cnt == 10):
-                break
-    return events
 
 @web.route('/', methods=['GET'])
 def index():
@@ -57,16 +34,14 @@ def register():
         user = User.objects(email=form.email.data).first()
         if user is None:
             try:
-                user=User.create(form.email.data, form.password.data)
+                User.create(form.email.data, form.password.data)
             except Exception as e:
                 if str(e) == 'password_length':
                     return render_template('register.html', form=form,
                                            server_errors=['Your password should be between 8 and 20 characters long'])
                 return render_template('register.html', form=form, server_errors=['An unexpected error occured'])
-            if user and user.login(form.password.data):
-                login_user(user)
-                return redirect(url_for('web.dashboard'))
-            return redirect(url_for('web.preferences'))
+
+            return redirect(url_for('web.dashboard'))
         return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
 
     return render_template('register.html', form=form)
@@ -90,52 +65,39 @@ def login():
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
 
-@web.route('/list-users', methods=['GET'])
-def list_users():
-    u = User.objects().all()
-    if u:
-        return repr(u)
-    return 'Not found!!'
-
-
-@web.route('/create-users', methods=['GET'])
-def create_them():
-    create_users()
-    return 'done!'
-
-
 @web.route('/dashboard')
 @login_required
 def dashboard():
-    events = get_events()
-    recommended = get_recommended_events()
-    ids=current_user.get_preferences_keys()
-    d={}
-    for i in ids:
-        d[categories[int(i)]]=int(i)
-    return render_template('dashboard.html', name=current_user.email, events=events, cats=d, recommended=recommended)
+    events = Event.objects
+    recommended = events[:10]
+    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
+                           categories=current_user.categories)
 
 
-@web.route('/logout', methods=['GET'])
+@web.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('web.login'))
 
 
-@web.route('/delete-users', methods=['GET'])
-def delete_users():
-    User.drop_collection()
-    return 'done!'
-
-
 @web.route('/preferences', methods=['GET', 'POST'])
 @login_required
 def preferences():
     if request.method == 'GET':
-        rcats = current_user.get_preferences_keys()
-        c = [cat for cat in rcats]
-        return render_template('preferences.html', name=current_user.email, cats=json.dumps(c))
-    cats = request.form['cats'].split(',')
-    current_user.set_preferences_keys(cats)
+        all_categories = Category.objects
+        category_ids = [str(category.id) for category in current_user.categories]
+
+        return render_template('preferences.html', name=current_user.email,
+                               categories=[category.as_json() for category in all_categories],
+                               user_category_ids=category_ids)
+
+    form_string = request.form['categories']
+    if form_string != '':
+        raw_category_ids = form_string.split(',')
+        category_ids = [ObjectId(category_id) for category_id in raw_category_ids]
+        current_user.update(categories=category_ids)
+    else:
+        current_user.update(categories=None)
+
     return redirect(url_for('web.dashboard'))

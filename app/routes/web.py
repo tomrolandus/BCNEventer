@@ -69,8 +69,7 @@ def login():
 @login_required
 def dashboard():
     events = Event.objects
-    recommended = []
-
+    recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories)
 

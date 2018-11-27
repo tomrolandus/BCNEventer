@@ -71,7 +71,8 @@ def load_and_prepare_data(cnames, rename_cols_fct, path, cat_ids_from_prod, deli
     else: data = pd.read_csv(path, delimiter=delimiter_)
     data.dropna(inplace = True)
     data = rename_cols_fct(cnames, data)
-    data = drop_columns(data, cnames)
+    #data = drop_columns(data, cnames).iloc
+    data = drop_columns(data, cnames).iloc[:100, :]
     data = convert_category_to_id(data, cat_ids_from_prod)
     return(data)
 
@@ -91,8 +92,8 @@ def rename_cols_meetup(cnames, data):
                                 })
     data.date_time = pd.to_datetime(data.date_time, unit='ms').astype(str)
     # add the address as the description column, as given by reverse geocoding the coordinates
-    # data[cnames[1]]  = [getAddress(location[0],location[1]) for location in data.location]
-    data[cnames[1]] = "no description"
+    data[cnames[1]]  = [getAddress(location[0],location[1]) for location in data.location]
+    #data[cnames[1]] = "no description"
     return(data)
 
 def rename_cols_exceed(cnames, data):

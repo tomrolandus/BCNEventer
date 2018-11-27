@@ -1,137 +1,137 @@
 {% extends 'base.html' %}
 {% block title %}BCNEventer - Personal Preferences{% endblock title %}
 {% block extra_head %}
-<style>
-    .background-image {
-        background-image: url('../static/barcelona.jpg');
-        background-size: cover;
-        display: block;
-        -webkit-filter: blur(5px);
-        filter: blur(5px);
-        height: 100%;
-        left: 0;
-        position: fixed;
-        right: 0;
-        z-index: 0;
-        opacity: 0.2;
-    }
+    <style>
+        .background-image {
+            background-image: url('../static/barcelona.jpg');
+            background-size: cover;
+            display: block;
+            -webkit-filter: blur(5px);
+            filter: blur(5px);
+            height: 100%;
+            left: 0;
+            position: fixed;
+            right: 0;
+            z-index: 0;
+            opacity: 0.2;
+        }
 
-    .texto_grande {
-        font-size: 1.5rem;
-        color: white;
-    }
+        .texto_grande {
+            font-size: 1.5rem;
+            color: white;
+        }
 
-    .texto_medium {
-        font-size: 1rem;
-        color: white;
-    }
+        .texto_medium {
+            font-size: 1rem;
+            color: white;
+        }
 
-    #icone_grande {
-        font-size: 8rem;
-        color: #fff;
-    }
+        #icone_grande {
+            font-size: 8rem;
+            color: #fff;
+        }
 
-    .check {
-        opacity: 0.5;
-        color: #996;
+        .check {
+            opacity: 0.5;
+            color: #996;
 
-    }
+        }
 
-    .check2 {
-        background-color: #ffba41;
-    }
+        .check2 {
+            background-color: #ffba41;
+        }
 
-    .btn-purple {
-        color: #ffffff;
-        background-color: #611BBD;
-        border-color: #130269;
-    }
+        .btn-purple {
+            color: #ffffff;
+            background-color: #611BBD;
+            border-color: #130269;
+        }
 
-    .btn-purple:hover,
-    .btn-purple:focus,
-    .btn-purple:active,
-    .btn-purple.active,
-    .open .dropdown-toggle.btn-purple {
-        color: #ffffff;
-        background-color: #49247A;
-        border-color: #130269;
-    }
+        .btn-purple:hover,
+        .btn-purple:focus,
+        .btn-purple:active,
+        .btn-purple.active,
+        .open .dropdown-toggle.btn-purple {
+            color: #ffffff;
+            background-color: #49247A;
+            border-color: #130269;
+        }
 
-    .cat {
-        border-color: orange;
-    }
+        .cat {
+            border-color: black;
+        }
 
-    .cat:hover {
-        border-color: lime;
-    }
+        .cat:hover {
+            border-color: #FFC312;
+        }
 
-    .cat-selected {
-        border-color: green;
-        background-color: #bbd700;
-    }
-</style>
-<script>
-    let selectedCategoryIds = {{ user_category_ids|safe }};
-    let categories = {{ categories|tojson|safe }};
+        .cat-selected {
+            border-color: black;
+            background-color: #FFC312;
 
-    function initCat() {
-        selectedCategoryIds.forEach(id => {
-            let ref = $('#content a[name='+id+']')[0];
+        }
+    </style>
+    <script>
+        let selectedCategoryIds = {{ user_category_ids|safe }};
+        let categories = {{ categories|tojson|safe }};
+
+        function initCat() {
+            selectedCategoryIds.forEach(id => {
+                let ref = $('#content a[name=' + id + ']')[0];
+                $(ref).toggleClass('cat');
+                $(ref).toggleClass('cat-selected');
+            });
+
+            $('#in1').attr('value', selectedCategoryIds);
+        }
+
+        function catC(ref) {
+            idx = selectedCategoryIds.indexOf(ref.name);
+            if (idx === -1) selectedCategoryIds.push(ref.name); else selectedCategoryIds.splice(idx, 1);
             $(ref).toggleClass('cat');
             $(ref).toggleClass('cat-selected');
-        });
-
-        $('#in1').attr('value', selectedCategoryIds);
-    }
-
-    function catC(ref) {
-        idx = selectedCategoryIds.indexOf(ref.name);
-        if (idx === -1) selectedCategoryIds.push(ref.name); else selectedCategoryIds.splice(idx, 1);
-        $(ref).toggleClass('cat');
-        $(ref).toggleClass('cat-selected');
-        $('#in1').attr('value', selectedCategoryIds);
-        return false;
-    }
-</script>
+            $('#in1').attr('value', selectedCategoryIds);
+            return false;
+        }
+    </script>
 {% endblock extra_head %}
 {% block main %}
-<nav class="navbar navbar-light" style="background-color: #FFC312;">
-    <a class="navbar-brand" href="#">BCNEventer - Personal Preferences</a>
-    <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
-</nav>
-<div class="background-image"></div>
-<div class="content container">
-    {# <h1>Dashboard</h1>#}
+    <nav class="navbar navbar-light" style="background-color: #FFC312;">
+        <a class="navbar-brand" href="#">BCNEventer - Personal Preferences</a>
+        <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
+    </nav>
+    <div class="background-image"></div>
+    <div class="content container">
+        <h2 style="color: white; margin-top: 10px">Select the categories of events that suit your interest:</h2>
+        <div id="content" class="container" style="margin-top: 40px">
+            {% for category in categories %}
+                {% if (loop.index-1) % 4 == 0 %}
+                    <div class="row mb-3">
+                {% endif %}
 
-    <h2 style="color: white; margin-top: 10px">Select the categories of events that suit your interest:</h2>
-
-    <div id="content" class="container" style="margin-top: 40px">
-        {% for category in categories %}
-            {% if (loop.index-1) % 4 == 0 %}
-                <div class="row mb-3">
-            {% endif %}
 
             <div class="col-md-3">
                 <a name="{{ category.id }}" class="btn btn-block btn-lg cat" onclick="catC(this)" href="#">
-                    <span class="texto_medium">{{ category.name }}</span></a>
+                    <span class="texto_medium">{{ category.name }}</span>
+                </a>
             </div>
 
             {% if loop.index % 4 == 0 %}
                 </div>
             {% endif %}
 
-        {% endfor %}
+            {% endfor %}
 
-        <div class="col-md-12 mt-3">
-            <form method="post" action="/preferences">
-                <input id="in1" type="hidden" name="categories" value="">
-                <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
-            </form>
+            <div class="col-md-12 mt-3">
+                <form method="post" action="/preferences">
+                    <input id="in1" type="hidden" name="categories" value="">
+                    <button onclick="$('#in1').hide();" class="btn btn-success btn-lg" style="width:100%">Save</button>
+                </form>
+            </div>
         </div>
+        <br>
     </div>
-    <br>
-</div>
-<script>
-    $(document).ready(initCat());
-</script>
+    <script>
+        $(document).ready(initCat());
+    </script>
 {% endblock main %}

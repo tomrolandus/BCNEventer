@@ -3,7 +3,6 @@ import mongoengine
 from app.models.category import Category
 from .base import Base
 
-
 class Event(Base):
     name = mongoengine.StringField()
     description = mongoengine.StringField()
@@ -18,3 +17,4 @@ class Event(Base):
         self.location = location
         self.date_time = date_time
         self.categories = categories
+

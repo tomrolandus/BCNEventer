@@ -1,5 +1,3 @@
-import json
-
 import mongoengine
 from .base import Base
 

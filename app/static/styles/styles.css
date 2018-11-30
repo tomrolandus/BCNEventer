@@ -10,3 +10,11 @@
     margin-left: 10px;
     margin-bottom: 20px;
 }
+
+.slick-dots li button:before {
+    color: white !important;
+  }
+
+.slick-dots li.slick-active button:before {
+    color: #FFC312 !important;
+}

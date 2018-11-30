@@ -1,6 +1,10 @@
+import sys
+sys.path.append('../')
+
 from flask import Flask
 from flask_mongoengine import MongoEngine
-from app.User import User
+from app.models.user import User
+
 from faker import Faker
 
 app = Flask(__name__)

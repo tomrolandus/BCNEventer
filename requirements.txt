@@ -1,4 +1,6 @@
+numpy
 faker
+Faker
 pymongo
 mongoengine
 wtforms
@@ -13,3 +15,5 @@ requests
 flask-mongoengine
 flask-wtf
 flask-login
+gunicorn
+geopy

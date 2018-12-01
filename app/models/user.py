@@ -5,9 +5,10 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.models.category import Category
-#from datasets.MeetUp.categories import categories
+# from datasets.MeetUp.categories import categories
 from datasets.Xceed.genres import music_genres
 from .base import Base
+from app.models.event import Event
 
 
 class User(Base, UserMixin):
@@ -22,9 +23,11 @@ class User(Base, UserMixin):
 
     ratings = pd.DataFrame({MOVIES: [], RATES: []})
     categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
+    events = mongoengine.ListField(mongoengine.ReferenceField(Event))
     music_genres_keys = mongoengine.ListField()
     age = mongoengine.IntField()
     gender = mongoengine.IntField()
+
     @staticmethod
     def create(email, password):
         if len(password) < User.__min_password_length or len(password) > User.__max_password_length:
@@ -76,16 +79,6 @@ class User(Base, UserMixin):
     def get_email(self):
         return self.email
 
-    def set_preferences(self, prefs):
-        self.preferences = prefs
-        self.save()
-
-    def get_preferences_keys(self):
-        return self.preferences_keys
-
-    def get_preferences_names(self):
-        return [categories[i] for i in self.preferences_keys]
-
     def get_age(self):
         return self.age
 
@@ -110,5 +103,29 @@ class User(Base, UserMixin):
     def get_music_genres_names(self):
         return [music_genres[i] for i in self.music_genres_keys]
 
-    def test(self):
+    def set_categories(self, categories):
+        self.categories = categories
+        self.save()
+
+    def add_categories(self, categories_to_add):
+        self.update(push_all__categories=categories_to_add)
+        self.save()
+
+    def remove_categories(self, categories_to_remove):
+        self.update(pull_all__categories=categories_to_remove)
+        self.save()
+
+    def get_categories(self):
         return self.categories
+
+    def set_events(self, events):
+        self.events = events
+        self.save()
+
+    def add_events(self, events_to_add):
+        self.update(push_all__events = events_to_add)
+        self.save()
+
+    def get_events(self):
+        return self.events
+

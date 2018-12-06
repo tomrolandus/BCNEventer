@@ -16,3 +16,6 @@ class Category(Base):
         }
 
         return obj
+
+    def get_id(self):
+        return self.id

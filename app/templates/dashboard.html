@@ -66,8 +66,7 @@
                 <ul class="nav flex-column mb-2">
                     {% for category in categories %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/cat/{{ category.id }}">
-                                {#                  <span data-feather="file-text"></span>#}
+                            <a class="nav-link" href="{{ url_for('web.filter_category', category_id=category.id) }}" style="color: white">
                                 {{ category.name }}
                             </a>
                         </li>
@@ -91,8 +90,7 @@
                                     <h6 style="height: 70px; color: white; margin: auto;">{{ r.name }}</h6>
                                     <img class="card-img-top" src="../static/event.jpg" height="200px"
                                          style="margin-bottom: 20px" alt="Card image cap">
-                                    <p class="card-text"
-                                       style="height: 30px; color: white; margin: auto; margin-bottom: 20px;">{{ r.location.coordinates }}</p>
+                                    {# <p class="card-text" style="height: 30px; color: white; margin: auto; margin-bottom: 20px;">{{ r.location.coordinates }}</p> #}
                                     <p class="card-text"
                                        style="height: 20px; color: white; margin: auto; margin-bottom: 30px;">{{ r.date_time.strftime('%a, %d %b %Y, %H:%M') }}</p>
                                     <a href="#" class="btn"
@@ -112,7 +110,7 @@
                                      alt="Card image cap">
                                 <div class="card-body">
                                     <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>
-                                    <p class="card-text" style="height: 30px;">{{ event.location.coordinates[0], event.location.coordinates[1] }}</p>
+                                    {#<p class="card-text" style="height: 30px;">{{ event.location.coordinates[0], event.location.coordinates[1] }}</p> #}
                                     <p class="card-text" style="height: 20px;">{{ event.date_time.strftime('%a, %d %b %Y, %H:%M') }}</p>
                                     <a href="#" class="btn"
                                        style="background-color: #FFC312; color: black; border: 2px solid black;">I'M

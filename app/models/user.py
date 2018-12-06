@@ -27,6 +27,7 @@ class User(Base, UserMixin):
     music_genres_keys = mongoengine.ListField()
     age = mongoengine.IntField()
     gender = mongoengine.IntField()
+    name = mongoengine.StringField()
 
     @staticmethod
     def create(email, password):
@@ -128,4 +129,11 @@ class User(Base, UserMixin):
 
     def get_events(self):
         return self.events
+
+    def set_name(self, name):
+        self.name = name
+        self.save()
+
+    def get_name(self):
+        return self.name
 

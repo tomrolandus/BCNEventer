@@ -145,6 +145,7 @@ def create_users(n=1):
         email = faker.safe_email()  # 'user' + str(i) + '@test.com'
         password = '12345678'
         user = User.create(email, password)
+        user.set_name(faker.name())
         create_semi_random_persona(user)
         link_random_events_to_user(user)
 

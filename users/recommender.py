@@ -3,6 +3,8 @@ import argparse
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.model_selection import cross_val_score
+import sys
+sys.path.append('../scripts/')
 import user_generator as gen
 
 EVENT = 'Events'

@@ -29,7 +29,7 @@ db = MongoEngine(app)
 faker = Faker()
 
 
-def create_music_persona(user, persona_nb=0):
+def create_music_persona(user, persona_nb=4):
     if persona_nb == 0:
         persona_nb = np.random.randint(1, 5)
     if persona_nb == 1:
@@ -53,7 +53,7 @@ def create_music_persona(user, persona_nb=0):
         # music_genres = ['deep house','hip hop','r&b', 'urban','electro']
 
 
-def randomly_modify_music_genres(user, nb_to_add=2, nb_to_remove=2):
+def randomly_modify_music_genres(user, nb_to_add=2, nb_to_remove=0):
     music_genres_keys = user.get_music_genres_keys()
     not_selected_genres = list(set(music_genres) ^ set(music_genres_keys))
 
@@ -84,7 +84,7 @@ def randomly_modify_preferences(user):
     user.reload()
 
 
-def create_preferences_persona(user, preference_type=0):
+def create_preferences_persona(user, preference_type=4):
     if preference_type == 0:
         preference_type = np.random.randint(1, 6)
     if preference_type == 1:  # bookworm
@@ -140,7 +140,7 @@ def link_random_events_to_user(user):
     user.set_events(random_events)
 
 def create_users(n=1):
-    User.drop_collection()
+    #User.drop_collection()
     for i in range(0, n):
         email = faker.safe_email()  # 'user' + str(i) + '@test.com'
         password = '12345678'

@@ -59,6 +59,7 @@ class User(Base, UserMixin):
                genres + "<br>Gender: " + str(self.gender) + "<br>Age: " + str(self.age) + "<br><br>"
         # +', password: '+self.password
 
+
     def rate(self, movie, rating):
         try:
             if movie in self.ratings[self.MOVIES].tolist():

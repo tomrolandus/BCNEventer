@@ -18,6 +18,40 @@ db = MongoEngine(app)
 
 from app.models.event import Event
 
+#%%
+def set_ratings_of_new_user(new_user_id, num_events = 10):
+    all_events_cats = get_event_ids_and_cat_ids_from_db()
+    user_events = get_event_ids_of_user(user_id = new_user_id)
+    user_categories = get_category_ids_of_user(user_id = new_user_id)
+
+    # create df with new_user_id and ALL event ids and ALL category ids
+    df = pd.DataFrame({
+        'user_id': new_user_id,
+        'event_id': all_events_cats.event_id,
+        'category_id': all_events_cats.category_id
+    })
+
+    # assign ratings
+    # first assign np.nan to 'rating' column
+    df['rating'] = np.nan
+
+    # then assign 0 to events
+    # that are not within the preferred categories of the user
+    isin_user_categories = df.category_id.isin(user_categories)
+    df.loc[~isin_user_categories, 'rating'] = 0
+
+    # then assign 1 to events
+    # that the user wants to go
+    isin_user_events = df.event_id.isin(user_events)
+    df.loc[isin_user_events, 'rating'] = 1
+    #[1 for event in df.event_id if event in user_events]
+    return df
+
+
+def get_category_ids_of_user(user_id):
+    category_ids = [category.id.__str__() for category in User.objects.get(id=user_id).categories]
+    return category_ids
+
 def get_event_ids_from_db():
     event_ids = [event.id.__str__() for event in Event.objects]
     return event_ids
@@ -26,11 +60,26 @@ def get_user_ids_from_db():
     user_ids = [user.id.__str__() for user in User.objects]
     return user_ids
 
-def generate_new_random_user(num_events = 10):
-    event_ids = get_event_ids_from_db()
-    event_user_df = pd.DataFrame({'event_id': event_ids})
+def get_category_id_of_event(event_id):
+    # This takes only the first category of every event
+    event = Event.objects.get(id=event_id)
+    return event.categories[0].id.__str__()
 
-def generate_user_event_df():
+def get_event_ids_of_user(user_id):
+    user = User.objects.get(id=user_id)
+    event_ids = [event.id.__str__() for event in user.events]
+    return event_ids
+
+def get_event_ids_and_cat_ids_from_db():
+    event_ids = get_event_ids_from_db()
+    category_ids = [get_category_id_of_event(event_id) for event_id in event_ids]
+    df = pd.DataFrame({
+        'event_id': event_ids,
+        'category_id': category_ids
+    })
+    return df
+
+def generate_training_matrix():
     # generate df with events_ids and temporary key for doing cartesian product with user_ids
     df_events = pd.DataFrame({
         'key': 1,
@@ -67,7 +116,7 @@ def pearson_similarity(DataFrame, User1, User2, min_common_items=1):
     # GET events OF USER2
     events_user2 = DataFrame[DataFrame['user_id'] == User2]
 
-    # FIND SHARED FILMS
+    # find shared events
     rep = pd.merge(events_user1, events_user2, on='event_id')
     if len(rep) == 0:
         return 0
@@ -78,7 +127,7 @@ def pearson_similarity(DataFrame, User1, User2, min_common_items=1):
         return 0
     return res
 
-
+#%%
 class CollaborativeFiltering:
     """ Collaborative filtering using a custom sim(u,u'). """
 
@@ -110,7 +159,7 @@ class CollaborativeFiltering:
 
     def estimate(self, user_id, event_id):
         totals = {}
-        estimate_users = self.df[self.df['event_id'] == event_id]
+        event_users = self.df[self.df['event_id'] == event_id]
         rating_num = 0.0
         rating_den = 0.0
         allUsers = set(event_users['user_id'])
@@ -128,15 +177,24 @@ class CollaborativeFiltering:
                 return self.df.rating[self.df['user_id'] == user_id].mean()
         return rating_num / rating_den
 
+    def get_sim(self):
+        return self.sim
+
+#%%
+if __name__ == "__main__":
+    #df = generate_training_matrix()
+    #df = generate_random_ratings(df)
+    #recsys = CollaborativeFiltering(df)
+    #recsys.learn()
+    #recsys.get_sim()
+    print(get_event_ids_and_cat_ids_from_db())
 
 #%%
 
-if __name__ == "__main__":
-    df = generate_user_event_df()
-    df = generate_random_ratings(df)
-    recsys = CollaborativeFiltering(df)
-    recsys.learn()
 
-    [recsys.estimate()]
+#%%
+for el in nones:
+    if el != None:
+        print(el)
 
 #%%

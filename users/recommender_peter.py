@@ -133,7 +133,7 @@ def generate_random_user_item_matrix(user_id, fill_factor = 1/2):
         'user_id': get_user_ids_from_db()
     })
     # remove the user with given user_id from dataframe
-    df_users = df_users.loc[~df_users.user_id == user_id]
+    df_users = df_users.loc[df_users.user_id != user_id]
 
     # do cartesian product of users and events
     df_user_event = pd.merge(df_users, df_events).drop('key', axis = 1)
@@ -247,8 +247,8 @@ def recommend_events(df_old_users, df_new_user, num_events = 5):
 
 #%%
 if __name__ == "__main__":
-    df_old_users = generate_random_user_item_matrix()
-    df_new_user = set_ratings_of_user('5c0ce7b951f5a0af4e8da06d')
+    df_old_users = generate_random_user_item_matrix('5c0be96325dc9ac20b46363f')
+    df_new_user = set_ratings_of_user('5c0be96325dc9ac20b46363f')
     recommended_events = recommend_events(df_old_users, df_new_user)
     print(recommended_events)
 

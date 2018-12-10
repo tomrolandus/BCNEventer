@@ -19,7 +19,7 @@ db = MongoEngine(app)
 from app.models.event import Event
 
 #%%
-def set_ratings_of_new_user(new_user_id, num_events = 10):
+def set_ratings_of_new_user(new_user_id):
     all_events_cats = get_event_ids_and_cat_ids_from_db()
     user_events = get_event_ids_of_user(user_id = new_user_id)
     user_categories = get_category_ids_of_user(user_id = new_user_id)
@@ -79,7 +79,7 @@ def get_event_ids_and_cat_ids_from_db():
     })
     return df
 
-def generate_training_matrix():
+def generate_user_item_matrix():
     # generate df with events_ids and temporary key for doing cartesian product with user_ids
     df_events = pd.DataFrame({
         'key': 1,
@@ -94,7 +94,7 @@ def generate_training_matrix():
     df_user_event = pd.merge(df_users, df_events).drop('key', axis = 1)
     return df_user_event
 
-def generate_random_ratings(df, fill_factor = 1/3):
+def generate_random_ratings(df, fill_factor = 1/2):
 
     # get user_item matrix and set indices to 0
     df['rating'] = 0
@@ -110,7 +110,7 @@ def generate_random_ratings(df, fill_factor = 1/3):
     return df
 
 
-def pearson_similarity(DataFrame, User1, User2, min_common_items=1):
+def pearson_similarity(DataFrame, User1, User2, min_common_items=0):
     # GET event OF USER1
     events_user1 = DataFrame[DataFrame['user_id'] == User1]
     # GET events OF USER2
@@ -127,74 +127,49 @@ def pearson_similarity(DataFrame, User1, User2, min_common_items=1):
         return 0
     return res
 
-#%%
-class CollaborativeFiltering:
-    """ Collaborative filtering using a custom sim(u,u'). """
 
-    def __init__(self, DataFrame, similarity=pearson_similarity):
-        """ Constructor """
-        self.sim_method = similarity  # Gets recommendations for a person by using a weighted average
-        self.df = DataFrame
-        self.sim = pd.DataFrame(np.sum([0]), columns=DataFrame.user_id.unique(), index=DataFrame.user_id.unique())
+def get_most_similar_users(df_old_users, df_new_user, n = 5):
 
-    def learn(self):
-        """ Prepare data structures for estimation. Similarity matrix for users """
-        allUsers = set(self.df['user_id'])
-        self.sim = {}
-        for person1 in allUsers:
-            self.sim.setdefault(person1, {})
-            a = self.df[self.df['user_id'] == person1][['event_id']]
-            data_reduced = pd.merge(self.df, a, on='event_id')
-            for person2 in allUsers:
-                if person1 == person2: continue
-                self.sim.setdefault(person2, {})
-                if (person1 in self.sim[person2]): continue  # since it is a symmetric matrix
-                sim = self.sim_method(data_reduced, person1, person2)
-                if (sim < 0):
-                    self.sim[person1][person2] = 0
-                    self.sim[person2][person1] = 0
-                else:
-                    self.sim[person1][person2] = sim
-                    self.sim[person2][person1] = sim
+    df_new_user = df_new_user.drop('category_id', axis = 1)
+    df_new_user = df_new_user.loc[~np.isnan(df_new_user.rating)]
+    df = pd.concat([df_old_users, df_new_user], axis=0)
+    new_user_id = df_new_user.user_id.loc[0]
 
-    def estimate(self, user_id, event_id):
-        totals = {}
-        event_users = self.df[self.df['event_id'] == event_id]
-        rating_num = 0.0
-        rating_den = 0.0
-        allUsers = set(event_users['user_id'])
-        for other in allUsers:
-            if user_id == other: continue
-            rating_num += self.sim[user_id][other] * float(event_users[event_users['user_id'] == other]['rating'])
-            rating_den += self.sim[user_id][other]
+    sim = {}
+    for user in df_old_users.user_id.unique():
+        sim[user] = pearson_similarity(df, user, new_user_id)
 
-        if rating_den == 0:
-            if self.df.rating[self.df['event_id'] == event_id].mean() > 0:
-                # return the mean event rating if there is no similar for the computation
-                return self.df.rating[self.df['event_id'] == event_id].mean()
-            else:
-                # else return mean user rating
-                return self.df.rating[self.df['user_id'] == user_id].mean()
-        return rating_num / rating_den
+    output = pd.DataFrame({
+        'user_id': list(sim.keys()),
+        'similarity': list(sim.values())
+    }).sort_values('similarity', ascending=False)
+    return output.iloc[:n]['user_id']
 
-    def get_sim(self):
-        return self.sim
+def get_possible_events(df_new_user):
+    possible_events = df_new_user.loc[np.isnan(df_new_user.rating), 'event_id']
+    return possible_events
 
-#%%
-if __name__ == "__main__":
-    #df = generate_training_matrix()
-    #df = generate_random_ratings(df)
-    #recsys = CollaborativeFiltering(df)
-    #recsys.learn()
-    #recsys.get_sim()
-    print(get_event_ids_and_cat_ids_from_db())
+def recommend_events(df_old_users, df_new_user, num_events = 5):
 
-#%%
+    most_similar_users = get_most_similar_users(df_old_users, df_new_user)
+    possible_events = get_possible_events(df_new_user)
+
+    mask1 = df_old_users.event_id.isin(possible_events)
+
+    recommended_events = []
+    for user in most_similar_users:
+        mask2 = df_old_users.user_id == user
+        events = df_old_users.loc[mask1 & mask2, 'event_id']
+        for event in events:
+            recommended_events.append(event)
+            if len(recommended_events) > num_events + 1:
+                return recommended_events
 
 
 #%%
-for el in nones:
-    if el != None:
-        print(el)
+df = generate_user_item_matrix()
+df = generate_random_ratings(df)
+df_new_user = set_ratings_of_new_user('5c0ce7b951f5a0af4e8da06d')
+print(recommend_events(df, df_new_user, 3))
 
 #%%

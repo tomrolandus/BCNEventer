@@ -65,20 +65,27 @@ def login():
 
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
-@web.route('/dashboard/<category_id>')
+@web.route('/<category_id>/filter')
 def filter_category(category_id):
+    print(category_id)
     category = Category.objects.get(id=category_id)
     events = Event.objects(categories__in=[category])
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories)
 
+@web.route('/<event_id>/interested')
+def record_interest(event_id):
+    print(event_id)
+    event = Event.objects.get(id=event_id)
+    current_user.update(add_to_set__events=[event])
+    return redirect(request.referrer)
+
 
 @web.route('/dashboard')
 @login_required
 def dashboard():
     events = Event.objects
-    print(events[0].categories)
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories)

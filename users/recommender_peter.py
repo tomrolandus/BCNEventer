@@ -113,7 +113,7 @@ def set_ratings_of_user(user_id):
 #%%
 
 
-def generate_random_user_item_matrix(user_id, fill_factor = 1/2):
+def generate_random_user_item_matrix(user_id, fill_factor = 0.2):
     """
     Generates a user-item matrix that is randomly filled with 0's and 1's.
     The ratio of 1's is equal to fill_factor. The matrix does not contain
@@ -138,6 +138,7 @@ def generate_random_user_item_matrix(user_id, fill_factor = 1/2):
     # do cartesian product of users and events
     df_user_event = pd.merge(df_users, df_events).drop('key', axis = 1)
     return generate_random_ratings(df_user_event, fill_factor)
+    #return df_user_event
 
 def generate_random_ratings(df, fill_factor):
     """
@@ -247,9 +248,12 @@ def recommend_events(df_old_users, df_new_user, num_events = 5):
 
 #%%
 if __name__ == "__main__":
-    df_old_users = generate_random_user_item_matrix('5c0be96325dc9ac20b46363f')
-    df_new_user = set_ratings_of_user('5c0be96325dc9ac20b46363f')
+    user_id = '5c0ce7b951f5a0af4e8da06d'
+    df_old_users = generate_random_user_item_matrix(user_id)
+    # user specific
+    df_new_user = set_ratings_of_user(user_id)
     recommended_events = recommend_events(df_old_users, df_new_user)
     print(recommended_events)
 
 #%%
+

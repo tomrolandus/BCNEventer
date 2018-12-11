@@ -139,7 +139,7 @@ def link_random_events_to_user(user):
     random_events = faker.random.sample(list(events_from_categories), round(0.5 + faker.random.betavariate(2, 5) * 10))
     user.set_events(random_events)
 
-def create_users(n=1):
+def create_users(n=10):
     #User.drop_collection()
     for i in range(0, n):
         email = faker.safe_email()  # 'user' + str(i) + '@test.com'

@@ -93,8 +93,17 @@
                                     {# <p class="card-text" style="height: 30px; color: white; margin: auto; margin-bottom: 20px;">{{ r.location.coordinates }}</p> #}
                                     <p class="card-text"
                                        style="height: 20px; color: white; margin: auto; margin-bottom: 30px;">{{ r.date_time.strftime('%a, %d %b %Y, %H:%M') }}</p>
-                                    <a href="{{ url_for('web.record_interest', event_id=r.id) }}" class="btn"
-                                       style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">I'M INTERESTED</a>
+                                    {% if r in attending %}
+                                            <a href="{{ url_for('web.record_interest', event_id=r.id) }}" class="btn"
+                                                style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto;">
+                                            CHANGED MY MIND
+                                            </a>
+                                    {% else %}
+                                            <a href="{{ url_for('web.record_interest', event_id=r.id) }}" class="btn"
+                                                style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">
+                                            I WANNA GO
+                                            </a>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
@@ -111,8 +120,17 @@
                                     <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>
                                     {#<p class="card-text" style="height: 30px;">{{ event.location.coordinates[0], event.location.coordinates[1] }}</p> #}
                                     <p class="card-text" style="height: 20px;">{{ event.date_time.strftime('%a, %d %b %Y, %H:%M') }}</p>
-                                    <a href="{{ url_for('web.record_interest', event_id=event.id) }}" class="btn"
-                                       style="background-color: #FFC312; color: black; border: 2px solid black;">I'M INTERESTED</a>
+                                    {% if event in attending %}
+                                            <a href="{{ url_for('web.record_interest', event_id=event.id) }}" class="btn"
+                                       style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto;">
+                                            CHANGED MY MIND
+                                            </a>
+                                    {% else %}
+                                            <a href="{{ url_for('web.record_interest', event_id=event.id) }}" class="btn"
+                                       style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">
+                                            I WANNA GO
+                                            </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}

@@ -76,7 +76,10 @@ def filter_category(category_id):
 @web.route('/<event_id>/interested')
 def record_interest(event_id):
     event = Event.objects.get(id=event_id)
-    current_user.update(add_to_set__events=[event])
+    if event in current_user.events:
+        current_user.update(pull_all__events=[event])
+    else:
+        current_user.update(add_to_set__events=[event])
     return redirect(request.referrer)
 
 

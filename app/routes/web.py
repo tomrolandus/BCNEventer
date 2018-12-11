@@ -67,18 +67,19 @@ def login():
 
 @web.route('/<category_id>/filter')
 def filter_category(category_id):
-    print(category_id)
     category = Category.objects.get(id=category_id)
     events = Event.objects(categories__in=[category])
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
-                           categories=current_user.categories)
+                           categories=current_user.categories, attending=current_user.events)
 
 @web.route('/<event_id>/interested')
 def record_interest(event_id):
-    print(event_id)
     event = Event.objects.get(id=event_id)
-    current_user.update(add_to_set__events=[event])
+    if event in current_user.events:
+        current_user.update(pull_all__events=[event])
+    else:
+        current_user.update(add_to_set__events=[event])
     return redirect(request.referrer)
 
 
@@ -88,7 +89,7 @@ def dashboard():
     events = Event.objects
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
-                           categories=current_user.categories)
+                           categories=current_user.categories, attending=current_user.events)
 
 
 @web.route('/logout')

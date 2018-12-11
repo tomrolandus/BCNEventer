@@ -1,3 +1,5 @@
+
+#%%
 import sys
 sys.path.append('../')
 
@@ -15,7 +17,7 @@ db = MongoEngine(app)
 
 faker = Faker()
 
-
+#%%
 User.drop_collection()
 
 n = 10

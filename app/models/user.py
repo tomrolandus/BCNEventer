@@ -5,7 +5,6 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.models.category import Category
-# from datasets.MeetUp.categories import categories
 from datasets.Xceed.genres import music_genres
 from .base import Base
 from app.models.event import Event
@@ -18,13 +17,8 @@ class User(Base, UserMixin):
     email = mongoengine.EmailField(required=True)
     password = mongoengine.StringField()
 
-    RATES = 'Rates'
-    MOVIES = 'Events'
-
-    ratings = pd.DataFrame({MOVIES: [], RATES: []})
     categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
     events = mongoengine.ListField(mongoengine.ReferenceField(Event))
-    # music_genres_keys = mongoengine.ListField()
     name = mongoengine.StringField()
     recommended_events = mongoengine.ListField(mongoengine.ReferenceField(Event))
 
@@ -56,7 +50,6 @@ class User(Base, UserMixin):
 
         return 'email: ' + self.email + "<br>Preference keys: " + prefs + "<br>Music genres keys: " + \
                genres + "<br>Gender: " + str(self.gender) + "<br>Age: " + str(self.age) + "<br><br>"
-        # +', password: '+self.password
 
 
     def rate(self, movie, rating):

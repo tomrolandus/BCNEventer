@@ -24,10 +24,11 @@ class User(Base, UserMixin):
     ratings = pd.DataFrame({MOVIES: [], RATES: []})
     categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
     events = mongoengine.ListField(mongoengine.ReferenceField(Event))
-    music_genres_keys = mongoengine.ListField()
-    age = mongoengine.IntField()
-    gender = mongoengine.IntField()
+    # music_genres_keys = mongoengine.ListField()
+    # age = mongoengine.IntField()
+    # gender = mongoengine.IntField()
     name = mongoengine.StringField()
+    recommended_events = mongoengine.ListField(mongoengine.ReferenceField(Event))
 
     @staticmethod
     def create(email, password):
@@ -131,10 +132,17 @@ class User(Base, UserMixin):
     def get_events(self):
         return self.events
 
-    def set_name(self, name):
-        self.name = name
+    # def set_name(self, name):
+    #     self.name = name
+    #     self.save()
+
+    # def get_name(self):
+    #     return self.name
+
+    def set_recommended_events(self, recommended_events):
+        self.update(pull_all__recommended_events=self.recommended_events)
+        self.update(push_all__recommended_events=recommended_events)
         self.save()
 
-    def get_name(self):
-        return self.name
+
 

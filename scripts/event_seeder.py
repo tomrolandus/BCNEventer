@@ -18,7 +18,6 @@ db = MongoEngine(app)
 faker = Faker()
 
 categories = Category.objects
-
 Event.drop_collection()
 
 n = 10

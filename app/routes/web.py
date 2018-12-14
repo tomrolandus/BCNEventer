@@ -6,6 +6,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
+import re
 
 from app.models.category import Category
 from app.models.event import Event
@@ -64,6 +65,23 @@ def login():
 
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
+@web.route('/<category_id>/filter')
+def filter_category(category_id):
+    category = Category.objects.get(id=category_id)
+    events = Event.objects(categories__in=[category])
+    recommended = events[:10]
+    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
+                           categories=current_user.categories, attending=current_user.events)
+
+@web.route('/<event_id>/interested')
+def record_interest(event_id):
+    event = Event.objects.get(id=event_id)
+    if event in current_user.events:
+        current_user.update(pull_all__events=[event])
+    else:
+        current_user.update(add_to_set__events=[event])
+    return redirect(request.referrer)
+
 
 @web.route('/dashboard')
 @login_required
@@ -71,7 +89,7 @@ def dashboard():
     events = Event.objects
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
-                           categories=current_user.categories)
+                           categories=current_user.categories, attending=current_user.events)
 
 
 @web.route('/logout')

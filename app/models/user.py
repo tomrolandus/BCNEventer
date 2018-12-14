@@ -21,6 +21,7 @@ class User(Base, UserMixin):
     events = mongoengine.ListField(mongoengine.ReferenceField(Event))
     name = mongoengine.StringField()
     recommended_events = mongoengine.ListField(mongoengine.ReferenceField(Event))
+    music_genres_keys = mongoengine.ListField()
 
     @staticmethod
     def create(email, password):

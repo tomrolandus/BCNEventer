@@ -2,6 +2,7 @@ import json
 
 from bson import ObjectId
 from flask import Blueprint, redirect, url_for, request, render_template
+from flask.json import jsonify
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
@@ -65,6 +66,7 @@ def login():
 
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
+
 @web.route('/<category_id>/filter')
 def filter_category(category_id):
     category = Category.objects.get(id=category_id)
@@ -73,7 +75,8 @@ def filter_category(category_id):
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories, attending=current_user.events)
 
-@web.route('/<event_id>/interested')
+
+@web.route('/<event_id>/interested', methods=["POST"])
 def record_interest(event_id):
     event = Event.objects.get(id=event_id)
     if event in current_user.events:
@@ -90,6 +93,49 @@ def dashboard():
     recommended = events[:10]
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories, attending=current_user.events)
+
+
+@web.route('/user_events')
+@login_required
+def user_events():
+    return to_json(current_user.events)
+
+
+@web.route('/user_events/<event_id>', methods=["POST", "DELETE"])
+@login_required
+def edit_user_event(event_id):
+    event_id = ObjectId(event_id)
+    if request.method == 'POST':
+        current_user.update(add_to_set__events=event_id)
+    else:
+        current_user.update(pull__events=event_id)
+
+    return jsonify({})
+
+
+@web.route('/events')
+@login_required
+def events():
+    page_count = 24
+
+    raw_page_num = request.args.get('page')
+    page_num = 1
+    if raw_page_num is not None and raw_page_num.isdigit() and int(raw_page_num) > 0:
+        page_num = int(raw_page_num)
+
+    events = Event.objects.skip((page_num - 1) * page_count).limit(page_count)
+
+    return to_json(events)
+
+
+@web.route('/user_recommended_events')
+@login_required
+def user_recommended_events():
+    return to_json(Event.objects[:10])
+
+
+def to_json(items):
+    return jsonify([item.to_json() for item in items])
 
 
 @web.route('/logout')

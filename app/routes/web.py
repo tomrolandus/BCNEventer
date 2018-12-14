@@ -6,7 +6,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
-import re
+import users.recommender_peter as recommender
 
 from app.models.category import Category
 from app.models.event import Event
@@ -59,6 +59,9 @@ def login():
         user = User.objects(email=form.email.data).first()
         if user and user.login(form.password.data):
             login_user(user)
+            print("start getting events")
+            recommender.get_recommended_events(user.id)
+            print('finished getting events')
             return redirect(url_for('web.dashboard'))
 
         return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
@@ -115,7 +118,11 @@ def preferences():
         raw_category_ids = form_string.split(',')
         category_ids = [ObjectId(category_id) for category_id in raw_category_ids]
         current_user.update(categories=category_ids)
+
     else:
         current_user.update(categories=None)
 
+    user = User.objects(id = current_user.id).first()
+
+    recommender.get_recommended_events(user.id)
     return redirect(url_for('web.dashboard'))

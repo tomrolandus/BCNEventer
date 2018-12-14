@@ -10,13 +10,13 @@ from flask import Flask
 from flask_mongoengine import MongoEngine
 from app.models.user import User
 
-app = Flask(__name__)
-app.config['MONGODB_DB'] = 'bcneventer'
-app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
-
-db = MongoEngine(app)
-
+# app = Flask(__name__)
+# app.config['MONGODB_DB'] = 'bcneventer'
+# app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+#
+# db = MongoEngine(app)
 from app.models.event import Event
+
 
 #%% HELPERS TO GET STUFF FROM THE DB
 def get_category_ids_of_user(user_id):
@@ -247,13 +247,18 @@ def recommend_events(df_old_users, df_new_user, num_events = 5):
     return recommended_events
 
 #%%
-if __name__ == "__main__":
-    user_id = '5c0ce7b951f5a0af4e8da06d'
+# if __name__ == "__main__":
+#     user_id = '5c1380f6922d780f1e8540ae'
+#     df_old_users = generate_random_user_item_matrix(user_id)
+#     # user specific
+#     df_new_user = set_ratings_of_user(user_id)
+#     recommended_events = recommend_events(df_old_users, df_new_user)
+#     print(recommended_events)
+
+def get_recommended_events(user_id):
     df_old_users = generate_random_user_item_matrix(user_id)
-    # user specific
     df_new_user = set_ratings_of_user(user_id)
-    recommended_events = recommend_events(df_old_users, df_new_user)
-    print(recommended_events)
+    user = User.objects(id = user_id).first()
+    user.set_recommended_events(recommend_events(df_old_users, df_new_user))
 
-#%%
-
+    print(user.recommended_events)

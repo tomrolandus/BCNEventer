@@ -60,14 +60,14 @@
                     </a>
                 </h6>
                 <ul class="nav flex-column mb-2">
-                    {% for category in categories %}
+                    <div v-for="(category, idx) in categories">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('web.filter_category', category_id=category.id) }}"
+                            <a class="nav-link" @click="filterEvents(category.id)"
                                style="color: white">
-                                {{ category.name }}
+                                ${category.name}
                             </a>
                         </li>
-                    {% endfor %}
+                    </div>
                 </ul>
             </div>
         </nav>
@@ -132,6 +132,7 @@
             created() {
                 this.currentEventFetch = this.fetchEvents();
                 this.fetchUserEvents();
+                this.fetchPreferences();
                 this.fetchRecommendedEvents().then(() => this.initMap());
 
                 window.onscroll = () => {
@@ -168,6 +169,12 @@
                         this.recommendedEvents = data
                     })
                 },
+                fetchPreferences() {
+                    return axios.get(`user_categories`).then(({data}) => {
+                        print(data)
+                        this.categories = data
+                    })
+                },
                 addUserEvent(eventId) {
                     axios.post(`/user_events/${eventId}`).then(() => {
                         this.userEventIds.push(eventId)
@@ -179,7 +186,7 @@
                     })
                 },
                 filterEvents(categoryId) {
-                    axios.post(`/${category_id}/filter`)
+                    axios.post(`/${categoryId}/filter`)
                 },
                 initMap() {
                     let locCount = 0;
@@ -238,7 +245,8 @@
                 recommendedEvents: [],
                 events: [],
                 userEventIds: [],
-                page: 1
+                page: 1,
+                categories: [],
             }
         })
     </script>

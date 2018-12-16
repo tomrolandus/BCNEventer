@@ -137,6 +137,10 @@ def events():
 def user_recommended_events():
     return to_json(Event.objects[100:110])
 
+@web.route('/user_categories')
+@login_required
+def user_categories():
+    return to_json(current_user.categories)
 
 def to_json(items):
     return jsonify([item.to_json() for item in items])

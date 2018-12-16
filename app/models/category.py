@@ -17,5 +17,13 @@ class Category(Base):
 
         return obj
 
+    def to_json(self):
+        obj = {
+            'id': str(self.id),
+            'name': str(self.name),
+        }
+
+        return obj
+
     def get_id(self):
         return self.id

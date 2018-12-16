@@ -135,7 +135,7 @@ def events():
 @web.route('/user_recommended_events')
 @login_required
 def user_recommended_events():
-    return to_json(Event.objects[:10])
+    return to_json(Event.objects[100:110])
 
 
 def to_json(items):

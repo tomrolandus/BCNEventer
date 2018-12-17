@@ -1,13 +1,11 @@
 import mongoengine
-import numpy as np
-import pandas as pd
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.models.category import Category
+from app.models.event import Event
 from datasets.Xceed.genres import music_genres
 from .base import Base
-from app.models.event import Event
 
 
 class User(Base, UserMixin):
@@ -101,4 +99,3 @@ class User(Base, UserMixin):
     def set_recommended_events(self, recommended_events):
         self.update(pull_all__recommended_events=self.recommended_events)
         self.update(push_all__recommended_events=recommended_events)
-        self.save()

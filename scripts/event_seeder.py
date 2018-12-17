@@ -20,7 +20,7 @@ faker = Faker()
 categories = Category.objects
 Event.drop_collection()
 
-n = 10
+n = 1000
 
 
 for i in range(n):

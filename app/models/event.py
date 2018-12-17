@@ -20,17 +20,13 @@ class Event(Base):
         self.categories = categories
 
     def to_json(self, *args, **kwargs):
-        cats = []
-        for cat in self.categories:
-            cats.append({
-                "name": cat.name,
-                "id": str(cat.id),
-            })
+        cats = [str(cat_ref.id) for cat_ref in self.categories]
+
         return {
             "id": str(self.id),
             "name": self.name,
             "description": self.description,
             "location": self.location,
             "date_time": self.date_time,
-            "categories": cats,
+            "category_ids": cats,
         }

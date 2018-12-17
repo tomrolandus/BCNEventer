@@ -9,21 +9,11 @@ class Category(Base):
         super().__init__(*args, **values)
         self.name = name
 
-    def as_json(self):
-        obj = {
-            'id': str(self.id),
-            'name': str(self.name),
-        }
-
-        return obj
-
-    def to_json(self):
-        obj = {
-            'id': str(self.id),
-            'name': str(self.name),
-        }
-
-        return obj
-
     def get_id(self):
         return self.id
+
+    def to_json(self):
+        return {
+            'id': str(self.id),
+            'name': str(self.name),
+        }

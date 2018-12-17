@@ -1,14 +1,13 @@
-import json
-
 from bson import ObjectId
 from flask import Blueprint, redirect, url_for, request, render_template
 from flask.json import jsonify
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
+from mongoengine import ValidationError
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
-import users.recommender as recommender
 
+import users.recommender as recommender
 from app.models.category import Category
 from app.models.event import Event
 from app.models.user import User
@@ -105,6 +104,13 @@ def user_events():
     return to_json(current_user.events)
 
 
+# TODO: make this show the recommended events!
+@web.route('/user_recommended_events')
+@login_required
+def user_recommended_events():
+    return to_json(Event.objects[:10])
+
+
 @web.route('/user_events/<event_id>', methods=["POST", "DELETE"])
 @login_required
 def edit_user_event(event_id):
@@ -127,15 +133,22 @@ def events():
     if raw_page_num is not None and raw_page_num.isdigit() and int(raw_page_num) > 0:
         page_num = int(raw_page_num)
 
-    events = Event.objects.skip((page_num - 1) * page_count).limit(page_count)
+    raw_category_ids = request.args.get('category_ids')
+    try:
+        category_ids = raw_category_ids.split(',')
+        category_ids = [ObjectId(cat_id) for cat_id in category_ids]
+        events = Event.objects(categories__in=category_ids).skip((page_num - 1) * page_count).limit(page_count)
+    except:
+        events = Event.objects.skip((page_num - 1) * page_count).limit(page_count)
 
     return to_json(events)
 
 
-@web.route('/user_recommended_events')
+@web.route('/categories')
 @login_required
-def user_recommended_events():
-    return to_json(Event.objects[100:110])
+def categories():
+    categories = Category.objects
+    return to_json(categories)
 
 @web.route('/user_categories')
 @login_required
@@ -161,7 +174,7 @@ def preferences():
         category_ids = [str(category.id) for category in current_user.categories]
 
         return render_template('preferences.html', name=current_user.email,
-                               categories=[category.as_json() for category in all_categories],
+                               categories=[category.to_json() for category in all_categories],
                                user_category_ids=category_ids)
 
     form_string = request.form['categories']
@@ -173,7 +186,7 @@ def preferences():
     else:
         current_user.update(categories=None)
 
-    user = User.objects(id = current_user.id).first()
+    user = User.objects(id=current_user.id).first()
 
     recommender.set_recommended_events(user.id)
     return redirect(url_for('web.dashboard'))

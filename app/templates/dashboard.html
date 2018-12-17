@@ -36,7 +36,7 @@
         <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
     </nav>
     <div class="background-image"></div>
-    <div class="content row">
+    <div id="app" class="content row">
         <nav class="col-md-2 d-none d-md-block sidebar" style="border-top: solid 1px black; background-color: #232323">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
@@ -60,19 +60,17 @@
                     </a>
                 </h6>
                 <ul class="nav flex-column mb-2">
-                    <div v-for="(category, idx) in categories">
-                        <li class="nav-item">
-                            <a class="nav-link" @click="filterEvents(category.id)"
-                               style="color: white">
-                                ${category.name}
-                            </a>
-                        </li>
-                    </div>
+                    <li v-for="(category, idx) in categories" class="nav-item">
+                        <a class="nav-link" href="" @click.prevent="fetchEvents(category.id,true)"
+                           style="color: white">
+                            ${category.name}
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>
         <div class="col-md-10">
-            <div id="app" class="content container">
+            <div class="content container">
                 <div>
                     <h2 style="color: white; margin-top: 10px">Recommended Events</h2>
                     <div class="flex-container" style="width: 100%; justify-content: flex-start; flex-direction: row;">
@@ -80,7 +78,8 @@
                         <div class="slider" style="width: 350px">
                             <div v-for="(event, idx) in recommendedEvents" style="text-align: center;">
                                 <h6 style="height: 70px; color: white; margin: auto;">${ event.name }</h6>
-                                <img class="card-img-top" :src="'../static/' + event.categories[0].id + '.jpeg'" height="200px"
+                                <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0].id + '.jpeg'"
+                                     height="200px"
                                      style="margin-bottom: 20px" alt="Card image cap">
                                 <p class="card-text"
                                    style="height: 20px; color: white; margin: auto; margin-bottom: 30px;">${
@@ -101,8 +100,10 @@
                 <div>
                     <h2 style="color: white; margin-top: 40px">Available Events</h2>
                     <div class="flex-container">
-                        <div v-for="(event, idx) in events" class="card" style="width: 15rem; border: 2px solid black;">
-                            <img class="card-img-top" :src="'../static/' + event.categories[0].id + '.jpeg'"  width="200px" height="150px"
+                        <div v-for="(event, idx) in events" class="card"
+                             style="width: 15rem; border: 2px solid black;">
+                            <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0] + '.jpeg'"
+                                 width="200px" height="150px"
                                  alt="Card image cap">
                             <div class="card-body d-flex flex-column">
                                 <h6 class="card-title font-weight-bold">${ellipsis(event.name)}</h6>
@@ -130,15 +131,15 @@
             delimiters: ['${', '}'],
             el: '#app',
             created() {
-                this.currentEventFetch = this.fetchEvents();
+                this.fetchCategories();
+                this.fetchEvents();
                 this.fetchUserEvents();
-                this.fetchPreferences();
-                this.fetchRecommendedEvents().then(() => this.initMap());
+                this.fetchRecommendedEvents().then(this.initMap);
 
                 window.onscroll = () => {
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
                         this.currentEventFetch.then(() => {
-                            this.currentEventFetch = this.fetchEvents();
+                            this.fetchEvents();
                         }).catch((e) => {
                             console.log(e)
                         })
@@ -153,10 +154,22 @@
 
                     return text
                 },
-                fetchEvents() {
-                    return axios.get(`/events?page=${this.page}`).then(({data}) => {
-                        this.events = this.events.concat(data);
-                        this.page++
+                fetchCategories() {
+                    axios.get(`/categories`).then(({data}) => {
+                        this.categories = data;
+                    })
+                },
+                fetchEvents(categoryId='',reset=false) {
+                    if (reset) {
+                        this.page = 1;
+                    }
+
+                    this.currentEventFetch = axios.get(`/events?page=${this.page}&category_ids=${categoryId}`).then(({data}) => {
+                        if (reset)
+                            this.events = data;
+                        else
+                            this.events = this.events.concat(data);
+                        this.page++;
                     })
                 },
                 fetchUserEvents() {
@@ -165,13 +178,12 @@
                     })
                 },
                 fetchRecommendedEvents() {
-                    return axios.get(`user_recommended_events`).then(({data}) => {
+                    return axios.get(`/user_recommended_events`).then(({data}) => {
                         this.recommendedEvents = data
                     })
                 },
                 fetchPreferences() {
                     return axios.get(`user_categories`).then(({data}) => {
-                        print(data)
                         this.categories = data
                     })
                 },
@@ -190,19 +202,23 @@
                 },
                 initMap() {
                     let locCount = 0;
-                    let centerPoint = this.recommendedEvents.reduce((accumulator, event) => {
-                        if (event.location.coordinates && !Number.isNaN(event.location.coordinates[0]) && !Number.isNaN(event.location.coordinates[1])) {
-                            locCount++;
-                            accumulator[0] += event.location.coordinates[0];
-                            accumulator[1] += event.location.coordinates[1];
-                            return accumulator;
-                        }
-                        return accumulator;
-                    }, [0, 0]);
+                    let centerPoint = [41.4, 2.18];
 
-                    if (locCount) {
-                        centerPoint[0] /= locCount;
-                        centerPoint[1] /= locCount;
+                    if (this.recommendedEvents.length) {
+                        centerPoint = this.recommendedEvents.reduce((accumulator, event) => {
+                            if (event.location.coordinates && !Number.isNaN(event.location.coordinates[0]) && !Number.isNaN(event.location.coordinates[1])) {
+                                locCount++;
+                                accumulator[0] += event.location.coordinates[0];
+                                accumulator[1] += event.location.coordinates[1];
+                                return accumulator;
+                            }
+                            return accumulator;
+                        }, [0, 0]);
+
+                        if (locCount) {
+                            centerPoint[0] /= locCount;
+                            centerPoint[1] /= locCount;
+                        }
                     }
 
                     // ADD THE MAP
@@ -245,9 +261,9 @@
                 recommendedEvents: [],
                 events: [],
                 userEventIds: [],
-                page: 1,
                 categories: [],
-            }
+                page: 1
+            },
         })
     </script>
 {% endblock main %}

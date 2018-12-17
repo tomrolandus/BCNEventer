@@ -55,6 +55,7 @@ def login():
         return render_template('login.html', form=form)
 
     if form.validate():
+        print(User.objects)
         user = User.objects(email=form.email.data).first()
         if user and user.login(form.password.data):
             login_user(user)

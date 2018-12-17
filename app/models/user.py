@@ -41,18 +41,6 @@ class User(Base, UserMixin):
 
         return None
 
-    def __repr__(self):
-        prefs = ""
-        for pref in self.preferences_keys:
-            prefs += "-" + str(pref)
-        genres = ""
-        for genre in self.music_genres_keys:
-            genres += '-' + str(genre)
-
-        return 'email: ' + self.email + "<br>Preference keys: " + prefs + "<br>Music genres keys: " + \
-               genres + "<br>Gender: " + str(self.gender) + "<br>Age: " + str(self.age) + "<br><br>"
-
-
     def rate(self, movie, rating):
         try:
             if movie in self.ratings[self.MOVIES].tolist():
@@ -104,7 +92,7 @@ class User(Base, UserMixin):
         self.save()
 
     def add_events(self, events_to_add):
-        self.update(push_all__events = events_to_add)
+        self.update(push_all__events=events_to_add)
         self.save()
 
     def get_events(self):
@@ -114,6 +102,3 @@ class User(Base, UserMixin):
         self.update(pull_all__recommended_events=self.recommended_events)
         self.update(push_all__recommended_events=recommended_events)
         self.save()
-
-
-

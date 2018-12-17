@@ -1,91 +1,245 @@
-
-
 {% extends 'base.html' %}
 {% block title %}BCNEventer - Dashboard{% endblock title %}
 {% block extra_head %}
     <style>
-.background-image {
-  {#background-image: url('https://www.triptemptation.com/media/991e8e96-a79f-43fe-af86-10a95ecf7131/ffHrIA/Wallpapers/Barcelona/i-love-barcelona-1/2560x1440_0028_i-love-barcelona-wallpaper.jpg');#}
-  {#background-image: url('https://res.allmacwallpaper.com/get/iMac-21-inch-5K-Retina-wallpapers/Long-Expo-Barcelona-4096x2304/18514-13.jpg');#}
-  background-image: url('../static/barcelona.jpg');
-    background-size: cover;
-  display: block;
-  -webkit-filter: blur(5px);
-    filter: blur(5px);
-  height: 100%;
-  left: 0;
-  position: fixed;
-  right: 0;
-  z-index: 0;
-    opacity: 0.2;
-}
+        .background-image {
+            background-image: url('../static/barcelona.jpg');
+            background-size: cover;
+            display: block;
+            -webkit-filter: blur(5px);
+            filter: blur(5px);
+            height: 100%;
+            left: 0;
+            position: fixed;
+            right: 0;
+            z-index: 0;
+            opacity: 0.2;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
-   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-   crossorigin=""/>
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
-   integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
-   crossorigin=""></script>
-
-    <script type="text/javascript">
-        var mymap;
-        recommendedEvents = [];
-        window.onload = function () {
-            // ADD THE MAP
-            mymap = L.map('mapid').setView([41.3851, 2.1734], 13);
-            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                maxZoom: 18,
-                id: 'mapbox.streets',
-                accessToken: 'pk.eyJ1Ijoic3R1ZmkwNCIsImEiOiJjam9yOTA0cWcwYzRmM3Bsa24zNzljZTkxIn0.9c2kk60e1nZdk247eAQQng'
-            }).addTo(mymap);
-            // ADD MARKERS
-            recommendedEvents.forEach(function(recommendedEvent){
-                var marker = L.marker([recommendedEvent.lat, recommendedEvent.long]).addTo(mymap);
-                marker.bindPopup(recommendedEvent.name);
-            });
-        }
-        // SAVE RECOMMENDED EVENTS
-        function addRecommendedEvent(lat, long, name) {
-            var recommendedEvent = {lat: lat, long: long, name: name};
-            recommendedEvents.push(recommendedEvent);
-        }
-    </script>
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script src="https://unpkg.com/vue"></script>
 
 {% endblock extra_head %}
 {% block main %}
-      <nav class="navbar navbar-light" style="background-color: #FFC312;">
-    <a class="navbar-brand" href="#">BCNEventer - Dashboard</a>
-      <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
-  </nav>
+    <nav class="navbar navbar-light" style="background-color: #FFC312;">
+        <a class="navbar-brand" href="#">BCNEventer</a>
+        <p>Logged in as ({{ name }}) | <a href='logout'>Logout</a></p>
+    </nav>
     <div class="background-image"></div>
-  <div class="content container">
-{#    <h1>Dashboard</h1>#}
+    <div class="content row">
+        <nav class="col-md-2 d-none d-md-block sidebar" style="border-top: solid 1px black; background-color: #232323">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('web.dashboard') }}" style="color: white">
+                            Dashboard <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" style="color: white">
+                            Advanced Search
+                        </a>
+                    </li>
 
-  <div>
-      <h2 style="color: white; margin-top: 10px">Recommended Events</h2>
-        <div id="mapid" style="height: 500px; width: 100%;"></div>
-        {% for r in recommended %}
-            <script type="text/javascript">
-                addRecommendedEvent("{{r.coordinates[0]}}", "{{r.coordinates[1]}}", "{{r.name}}");
-            </script>
-        {% endfor %}
-  </div>
-  <div>
-  <h2 style="color: white; margin-top: 20px">Available Events</h2>
-    <div class="flex-container">
-    {% for event in events %}
-        <div class="card" style="width: 15rem; border: 2px solid black;">
-            <img class="card-img-top" src="../static/event.jpg" width="200px" height="150px" alt="Card image cap">
-            <div class="card-body">
-                <h6 class="card-title" style="height: 70px;">{{ event.name }}</h6>
-                <p class="card-text" style="height: 30px;">{{ event.coordinates }}</p>
-                <p class="card-text" style="height: 20px;">{{ event.time }}</p>
-                <a href="#" class="btn" style="background-color: #FFC312; color: black; border: 2px solid black;">SEE MORE</a>
+                </ul>
+
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span style="color:#FFC312">Saved preferences <span><a href="/preferences"
+                                                                           style="font-size:0.8rem;">[edit]</a></span></span>
+                    <a class="d-flex align-items-center text-muted" href="#">
+                    </a>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    {% for category in categories %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('web.filter_category', category_id=category.id) }}"
+                               style="color: white">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+        <div class="col-md-10">
+            <div id="app" class="content container">
+                <div>
+                    <h2 style="color: white; margin-top: 10px">Recommended Events</h2>
+                    <div class="flex-container" style="width: 100%; justify-content: flex-start; flex-direction: row;">
+                        <div id="mapid" style="height: 500px; width: 600px; margin-right: 50px"></div>
+                        <div class="slider" style="width: 350px">
+                            <div v-for="(event, idx) in recommendedEvents" style="text-align: center;">
+                                <h6 style="height: 70px; color: white; margin: auto;">${ event.name }</h6>
+                                <img class="card-img-top" :src="'../static/' + event.categories[0].id + '.jpeg'" height="200px"
+                                     style="margin-bottom: 20px" alt="Card image cap">
+                                <p class="card-text"
+                                   style="height: 20px; color: white; margin: auto; margin-bottom: 30px;">${
+                                    event.date_time }</p>
+                                <a v-if="userEventIds.includes(event.id)" @click="removeUserEvent(event.id)"
+                                   class="btn col"
+                                   style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto;">
+                                    CHANGED MY MIND
+                                </a>
+                                <a v-else class="btn col" @click="addUserEvent(event.id)"
+                                   style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">
+                                    I WANNA GO
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 style="color: white; margin-top: 40px">Available Events</h2>
+                    <div class="flex-container">
+                        <div v-for="(event, idx) in events" class="card" style="width: 15rem; border: 2px solid black;">
+                            <img class="card-img-top" :src="'../static/' + event.categories[0].id + '.jpeg'"  width="200px" height="150px"
+                                 alt="Card image cap">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title font-weight-bold">${ellipsis(event.name)}</h6>
+                                <p class="card-text">${ellipsis(event.name, 100)}</p>
+                                <div class="mt-auto">
+                                    <a v-if="userEventIds.includes(event.id)" @click="removeUserEvent(event.id)"
+                                       class="btn col"
+                                       style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto;">
+                                        CHANGED MY MIND
+                                    </a>
+                                    <a v-else class="btn col" @click="addUserEvent(event.id)"
+                                       style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">
+                                        I WANNA GO
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    {% endfor %}
     </div>
-  </div>
-  </div>
+    <script>
+        new Vue({
+            delimiters: ['${', '}'],
+            el: '#app',
+            created() {
+                this.currentEventFetch = this.fetchEvents();
+                this.fetchUserEvents();
+                this.fetchRecommendedEvents().then(() => this.initMap());
+
+                window.onscroll = () => {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                        this.currentEventFetch.then(() => {
+                            this.currentEventFetch = this.fetchEvents();
+                        }).catch((e) => {
+                            console.log(e)
+                        })
+                    }
+                };
+            },
+            methods: {
+                ellipsis(text, maxLength = 50) {
+                    if (text.length > maxLength) {
+                        return text.substring(0, maxLength) + ' ...'
+                    }
+
+                    return text
+                },
+                fetchEvents() {
+                    return axios.get(`/events?page=${this.page}`).then(({data}) => {
+                        this.events = this.events.concat(data);
+                        this.page++
+                    })
+                },
+                fetchUserEvents() {
+                    return axios.get(`/user_events`).then(({data}) => {
+                        this.userEventIds = data.map(event => event.id)
+                    })
+                },
+                fetchRecommendedEvents() {
+                    return axios.get(`user_recommended_events`).then(({data}) => {
+                        this.recommendedEvents = data
+                    })
+                },
+                addUserEvent(eventId) {
+                    axios.post(`/user_events/${eventId}`).then(() => {
+                        this.userEventIds.push(eventId)
+                    })
+                },
+                removeUserEvent(eId) {
+                    axios.delete(`/user_events/${eId}`).then(() => {
+                        this.userEventIds = this.userEventIds.filter(eventId => eventId !== eId)
+                    })
+                },
+                filterEvents(categoryId) {
+                    axios.post(`/${category_id}/filter`)
+                },
+                initMap() {
+                    let locCount = 0;
+                    let centerPoint = this.recommendedEvents.reduce((accumulator, event) => {
+                        if (event.location.coordinates && !Number.isNaN(event.location.coordinates[0]) && !Number.isNaN(event.location.coordinates[1])) {
+                            locCount++;
+                            accumulator[0] += event.location.coordinates[0];
+                            accumulator[1] += event.location.coordinates[1];
+                            return accumulator;
+                        }
+                        return accumulator;
+                    }, [0, 0]);
+
+                    if (locCount) {
+                        centerPoint[0] /= locCount;
+                        centerPoint[1] /= locCount;
+                    }
+
+                    // ADD THE MAP
+                    this.mymap = L.map('mapid').setView(centerPoint, 12);
+                    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                        maxZoom: 18,
+                        id: 'mapbox.streets',
+                        accessToken: 'pk.eyJ1Ijoic3R1ZmkwNCIsImEiOiJjam9yOTA0cWcwYzRmM3Bsa24zNzljZTkxIn0.9c2kk60e1nZdk247eAQQng'
+                    }).addTo(this.mymap);
+
+                    // ADD MARKERS
+                    this.recommendedEvents.forEach((recommendedEvent, index) => {
+                        const marker = L.marker(recommendedEvent.location.coordinates).addTo(this.mymap);
+                        marker.bindPopup(recommendedEvent.name);
+                        marker.on('mouseover', () => {
+                            this.openPopup();
+                        });
+                        marker.on('mouseout', () => {
+                            this.closePopup();
+                        });
+                        marker.on('click', () => {
+                            $('.slider').slick('slickPause');
+                            $('.slider').slick('slickGoTo', index);
+                        });
+                    });
+
+                    $('.slider').slick({
+                        infinite: true,
+                        arrows: true,
+                        dots: true,
+                        autoplay: true,
+                        autoplaySpeed: 2000,
+                    });
+                }
+            },
+            data: {
+                mymap: null,
+                currentEventFetch: null,
+                recommendedEvents: [],
+                events: [],
+                userEventIds: [],
+                page: 1
+            }
+        })
+    </script>
 {% endblock main %}

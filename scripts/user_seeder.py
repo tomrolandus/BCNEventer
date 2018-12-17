@@ -1,3 +1,8 @@
+
+#%%
+import sys
+sys.path.append('../')
+
 from flask import Flask
 from flask_mongoengine import MongoEngine
 from app.models.user import User
@@ -12,7 +17,7 @@ db = MongoEngine(app)
 
 faker = Faker()
 
-
+#%%
 User.drop_collection()
 
 n = 10

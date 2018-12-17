@@ -1,13 +1,17 @@
+import json
+
+from bson import ObjectId
 from flask import Blueprint, redirect, url_for, request, render_template
+from flask.json import jsonify
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
-import csv
+import users.recommender as recommender
 
-from app.models.user import User
-#from scripts.user_generator import create_users
+from app.models.category import Category
 from app.models.event import Event
+from app.models.user import User
 
 web = Blueprint('web', __name__, template_folder='/templates')
 
@@ -15,31 +19,6 @@ web = Blueprint('web', __name__, template_folder='/templates')
 class RegForm(FlaskForm):
     email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=30)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=20)])
-
-
-def get_events():
-    events = []
-    with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
-         csv_reader = csv.reader(csvfile, delimiter=',')
-         for row in csv_reader:
-             new_event = Event(row[3], (row[0], row[1]), row[2])
-             events.append(new_event)
-    return events
-
-def get_recommended_events():
-    events = []
-    cnt = 0
-    with open('app/static/events_Barcelona.csv', 'rt') as csvfile:
-        csv_reader = csv.reader(csvfile, delimiter=',')
-        for row in csv_reader:
-            if (row[0] == 'None' or row[0] == '0'):
-                continue
-            new_event = Event(row[3], (row[0], row[1]), row[2])
-            events.append(new_event)
-            cnt += 1
-            if (cnt == 10):
-                break
-    return events
 
 
 @web.route('/', methods=['GET'])
@@ -81,6 +60,9 @@ def login():
         user = User.objects(email=form.email.data).first()
         if user and user.login(form.password.data):
             login_user(user)
+            print("start getting events")
+            recommender.set_recommended_events(user.id)
+            print('finished getting events')
             return redirect(url_for('web.dashboard'))
 
         return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
@@ -88,36 +70,106 @@ def login():
     return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
 
 
-@web.route('/list-users', methods=['GET'])
-def list_users():
-    u = User.objects().all()
-    if u:
-        return repr(u)
-    return 'Not found!!'
+@web.route('/<category_id>/filter')
+def filter_category(category_id):
+    category = Category.objects.get(id=category_id)
+    events = Event.objects(categories__in=[category])
+    recommended = events[:10]
+    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
+                           categories=current_user.categories, attending=current_user.events)
 
 
-@web.route('/create-users', methods=['GET'])
-def create_them():
-    create_users()
-    return 'done!'
+@web.route('/<event_id>/interested', methods=["POST"])
+def record_interest(event_id):
+    event = Event.objects.get(id=event_id)
+    if event in current_user.events:
+        current_user.update(pull_all__events=[event])
+    else:
+        current_user.update(add_to_set__events=[event])
+    recommender.set_recommended_events(current_user.id)
+    return redirect(request.referrer)
 
 
 @web.route('/dashboard')
 @login_required
 def dashboard():
-    events = get_events()
-    recommended = get_recommended_events()
-    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended)
+    events = Event.objects
+    recommended = events[:10]
+    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
+                           categories=current_user.categories, attending=current_user.events)
 
 
-@web.route('/logout', methods=['GET'])
+@web.route('/user_events')
+@login_required
+def user_events():
+    return to_json(current_user.events)
+
+
+@web.route('/user_events/<event_id>', methods=["POST", "DELETE"])
+@login_required
+def edit_user_event(event_id):
+    event_id = ObjectId(event_id)
+    if request.method == 'POST':
+        current_user.update(add_to_set__events=event_id)
+    else:
+        current_user.update(pull__events=event_id)
+
+    return jsonify({})
+
+
+@web.route('/events')
+@login_required
+def events():
+    page_count = 24
+
+    raw_page_num = request.args.get('page')
+    page_num = 1
+    if raw_page_num is not None and raw_page_num.isdigit() and int(raw_page_num) > 0:
+        page_num = int(raw_page_num)
+
+    events = Event.objects.skip((page_num - 1) * page_count).limit(page_count)
+
+    return to_json(events)
+
+
+@web.route('/user_recommended_events')
+@login_required
+def user_recommended_events():
+    return to_json(Event.objects[100:110])
+
+
+def to_json(items):
+    return jsonify([item.to_json() for item in items])
+
+
+@web.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('web.login'))
 
-@web.route('/delete-users', methods=['GET'])
-def delete_users():
-    User.drop_collection()
-    return 'done!'
 
+@web.route('/preferences', methods=['GET', 'POST'])
+@login_required
+def preferences():
+    if request.method == 'GET':
+        all_categories = Category.objects
+        category_ids = [str(category.id) for category in current_user.categories]
+
+        return render_template('preferences.html', name=current_user.email,
+                               categories=[category.as_json() for category in all_categories],
+                               user_category_ids=category_ids)
+
+    form_string = request.form['categories']
+    if form_string != '':
+        raw_category_ids = form_string.split(',')
+        category_ids = [ObjectId(category_id) for category_id in raw_category_ids]
+        current_user.update(categories=category_ids)
+
+    else:
+        current_user.update(categories=None)
+
+    user = User.objects(id = current_user.id).first()
+
+    recommender.set_recommended_events(user.id)
+    return redirect(url_for('web.dashboard'))

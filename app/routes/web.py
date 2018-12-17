@@ -3,7 +3,6 @@ from flask import Blueprint, redirect, url_for, request, render_template
 from flask.json import jsonify
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_wtf import FlaskForm
-from mongoengine import ValidationError
 from wtforms import PasswordField, StringField
 from wtforms.validators import InputRequired, Email, Length
 
@@ -92,10 +91,7 @@ def record_interest(event_id):
 @web.route('/dashboard')
 @login_required
 def dashboard():
-    events = Event.objects
-    recommended = events[:10]
-    return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
-                           categories=current_user.categories, attending=current_user.events)
+    return render_template('dashboard.html', name=current_user.email)
 
 
 @web.route('/user_events')

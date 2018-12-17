@@ -141,11 +141,10 @@ def events():
     return to_json(events)
 
 
-@web.route('/categories')
+@web.route('/user_categories')
 @login_required
-def categories():
-    categories = Category.objects
-    return to_json(categories)
+def user_categories():
+    return to_json(current_user.categories)
 
 
 def to_json(items):

@@ -99,3 +99,11 @@ class User(Base, UserMixin):
     def set_recommended_events(self, recommended_events):
         self.update(pull_all__recommended_events=self.recommended_events)
         self.update(push_all__recommended_events=recommended_events)
+
+
+    def set_name(self, name):
+        self.name = name
+        self.save()
+
+    def get_name(self):
+        return self.name

@@ -19,6 +19,7 @@ from datasets.Xceed.genres import music_genres
 
 import pandas as pd
 import numpy as np
+import users.recommender as recommender
 
 app = Flask(__name__)
 app.config['MONGODB_DB'] = 'bcneventer'
@@ -134,12 +135,12 @@ def create_semi_random_persona(user):
 
 
 
-def link_random_events_to_user(user):
+def link_random_events_to_user(user, k = 50):
     events_from_categories = Event.objects(categories__in = user.get_categories())
-    random_events = faker.random.sample(list(events_from_categories), round(0.5 + faker.random.betavariate(2, 5) * 10))
+    random_events = faker.random.sample(list(events_from_categories), k)#round(0.5 + faker.random.betavariate(2, 5) * 10))
     user.set_events(random_events)
 
-def create_users(n=100):
+def create_users(n=50):
     # User.drop_collection()
     for i in range(0, n):
         email = faker.safe_email()  # 'user' + str(i) + '@test.com'
@@ -155,3 +156,4 @@ def create_users(n=100):
 
 
 create_users()
+

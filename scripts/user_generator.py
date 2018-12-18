@@ -148,7 +148,7 @@ def link_random_events_to_user(user, k = 50):
     user.set_events(random_events)
 
 def create_users(n=50):
-    # User.drop_collection()
+    User.drop_collection()
     for i in range(0, n):
         email = faker.safe_email()  # 'user' + str(i) + '@test.com'
         password = '12345678'

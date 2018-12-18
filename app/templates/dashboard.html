@@ -78,7 +78,7 @@
                         <div class="slider" style="width: 350px">
                             <div v-for="(event, idx) in recommendedEvents" style="text-align: center;">
                                 <h6 style="height: 70px; color: white; margin: auto;">${ event.name }</h6>
-                                <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0].id + '.jpeg'"
+                                <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0] + '.jpeg'"
                                      height="200px"
                                      style="margin-bottom: 20px" alt="Card image cap">
                                 <p class="card-text"
@@ -107,7 +107,7 @@
                                  alt="Card image cap">
                             <div class="card-body d-flex flex-column">
                                 <h6 class="card-title font-weight-bold">${ellipsis(event.name)}</h6>
-                                <p class="card-text">${ellipsis(event.name, 100)}</p>
+                                <p class="card-text">${ellipsis(event.date_time)}</p>
                                 <div class="mt-auto">
                                     <a v-if="userEventIds.includes(event.id)" @click="removeUserEvent(event.id)"
                                        class="btn col"

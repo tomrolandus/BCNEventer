@@ -109,8 +109,6 @@ def set_ratings_of_user(user_id):
 
 
 # %%
-
-
 def generate_random_user_item_matrix(user_id, fill_factor=0.2):
     """
     Generates a user-item matrix that is randomly filled with 0's and 1's.
@@ -137,6 +135,58 @@ def generate_random_user_item_matrix(user_id, fill_factor=0.2):
     df_user_event = pd.merge(df_users, df_events).drop('key', axis=1)
     return generate_random_ratings(df_user_event, fill_factor)
     # return df_user_event
+
+
+def generate_user_item_matrix(user_id):
+    """
+    Generates a user-item matrix that is randomly filled with 0's and 1's.
+    The ratio of 1's is equal to fill_factor. The matrix does not contain
+    the user_id, since the recommender is 'trained' on the other users
+    :param user_id:
+    :param fill_factor:
+    :return:
+    """
+    # generate df with events_ids and temporary key for doing cartesian product with user_ids
+    df_events = pd.DataFrame({
+        'key': 1,
+        'event_id': get_event_ids_from_db()
+    })
+    # generate df with user_ids and temporary key for doing cartesian product with events_ids
+    df_users = pd.DataFrame({
+        'key': 1,
+        'user_id': get_user_ids_from_db()
+    })
+    # remove the user with given user_id from dataframe
+    df_users = df_users.loc[df_users.user_id != user_id]
+
+    # do cartesian product of users and events
+    df_user_event = pd.merge(df_users, df_events).drop('key', axis=1)
+    return df_user_event
+
+
+def generate_ratings_from_db(user_id):
+    users = get_user_ids_from_db()
+    users.remove(user_id)
+    df = pd.DataFrame(columns = ['user_id', 'event_id'])
+    for user in users:
+        user_events = get_event_ids_of_user(user)
+        num_events = len(user_events)
+        user_vec = [user] * num_events
+        df_temp = pd.DataFrame({
+            'user_id': user_vec,
+            'event_id': user_events
+        })
+        df = pd.concat([df, df_temp], axis = 0)
+
+    df['rating'] = 1
+
+    user_all_events = generate_user_item_matrix(user_id)
+    user_all_events['rating'] = 0
+
+    df = df.append(user_all_events)
+    df = df.drop_duplicates(subset = ['event_id', 'user_id'])
+
+    return df
 
 
 def generate_random_ratings(df, fill_factor):
@@ -254,7 +304,17 @@ def set_recommended_events(user_id):
     :param user_id: the id of the current user
     :return: nothing
     """
-    df_old_users = generate_random_user_item_matrix(user_id)
+    df_old_users = generate_ratings_from_db(user_id)
     df_new_user = set_ratings_of_user(user_id)
     user = User.objects(id=user_id).first()
     user.set_recommended_events(recommend_events(df_old_users, df_new_user))
+
+if __name__ == "__main__":
+    from flask import Flask
+    from flask_mongoengine import MongoEngine
+    app = Flask(__name__)
+    app.config['MONGODB_DB'] = 'bcneventer'
+    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+    db = MongoEngine(app)
+    generate_ratings_from_db('5c1959e225dc9a3da4c21bd8')
+    set_recommended_events('5c1959e225dc9a3da4c21bd8')

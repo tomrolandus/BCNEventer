@@ -73,7 +73,7 @@ def login():
 def filter_category(category_id):
     category = Category.objects.get(id=category_id)
     events = Event.objects(categories__in=[category])
-    recommended = events[:10]
+    recommended = current_user.recommended_events
     return render_template('dashboard.html', name=current_user.email, events=events, recommended=recommended,
                            categories=current_user.categories, attending=current_user.events)
 
@@ -105,7 +105,7 @@ def user_events():
 @web.route('/user_recommended_events')
 @login_required
 def user_recommended_events():
-    return to_json(Event.objects[:10])
+    return to_json(current_user.recommended_events)
 
 
 @web.route('/user_events/<event_id>', methods=["POST", "DELETE"])
@@ -145,7 +145,6 @@ def events():
 @login_required
 def user_categories():
     return to_json(current_user.categories)
-
 
 def to_json(items):
     return jsonify([item.to_json() for item in items])

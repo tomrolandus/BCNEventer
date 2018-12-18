@@ -23,8 +23,15 @@ import users.recommender as recommender
 
 app = Flask(__name__)
 app.config['MONGODB_DB'] = 'bcneventer'
-app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
-
+write_production = False
+if write_production:
+    with open("../credentials.txt", 'r', encoding='utf-8') as f:
+        [name, password, url, dbname] = f.read().splitlines()
+    app.config['MONGODB_HOST'] = "mongodb://{}:{}@{}/{}".format(name, password, url, dbname)
+    print("Connected successfully!!!")
+else:
+    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+    print("Connected successfully!!!")
 db = MongoEngine(app)
 
 faker = Faker()
@@ -149,11 +156,10 @@ def create_users(n=50):
         user.set_name(faker.name())
         create_semi_random_persona(user)
         link_random_events_to_user(user)
-
-
-
+        user.save()
     return
 
 
 create_users()
+
 

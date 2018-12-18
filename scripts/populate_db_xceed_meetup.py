@@ -2,7 +2,7 @@
 # TODO: fix geocoding
 
 #%% Modules
-import library as lib
+import scripts.library as lib
 import sys
 sys.path.append('../')
 

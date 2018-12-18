@@ -3,6 +3,7 @@ import mongoengine
 from app.models.category import Category
 from .base import Base
 
+
 class Event(Base):
     name = mongoengine.StringField()
     description = mongoengine.StringField()
@@ -18,3 +19,14 @@ class Event(Base):
         self.date_time = date_time
         self.categories = categories
 
+    def to_json(self, *args, **kwargs):
+        cats = [str(cat_ref.id) for cat_ref in self.categories]
+
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "description": self.description,
+            "location": self.location,
+            "date_time": self.date_time,
+            "category_ids": cats,
+        }

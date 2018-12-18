@@ -1,14 +1,11 @@
 import mongoengine
-import numpy as np
-import pandas as pd
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.models.category import Category
-# from datasets.MeetUp.categories import categories
+from app.models.event import Event
 from datasets.Xceed.genres import music_genres
 from .base import Base
-from app.models.event import Event
 
 
 class User(Base, UserMixin):
@@ -18,16 +15,11 @@ class User(Base, UserMixin):
     email = mongoengine.EmailField(required=True)
     password = mongoengine.StringField()
 
-    RATES = 'Rates'
-    MOVIES = 'Events'
-
-    ratings = pd.DataFrame({MOVIES: [], RATES: []})
     categories = mongoengine.ListField(mongoengine.ReferenceField(Category))
     events = mongoengine.ListField(mongoengine.ReferenceField(Event))
-    music_genres_keys = mongoengine.ListField()
-    age = mongoengine.IntField()
-    gender = mongoengine.IntField()
     name = mongoengine.StringField()
+    recommended_events = mongoengine.ListField(mongoengine.ReferenceField(Event))
+    music_genres_keys = mongoengine.ListField()
 
     @staticmethod
     def create(email, password):
@@ -46,19 +38,6 @@ class User(Base, UserMixin):
             return self
 
         return None
-
-    def __repr__(self):
-        prefs = ""
-        for pref in self.preferences_keys:
-            prefs += "-" + str(pref)
-        genres = ""
-        for genre in self.music_genres_keys:
-            genres += '-' + str(genre)
-
-        return 'email: ' + self.email + "<br>Preference keys: " + prefs + "<br>Music genres keys: " + \
-               genres + "<br>Gender: " + str(self.gender) + "<br>Age: " + str(self.age) + "<br><br>"
-        # +', password: '+self.password
-
 
     def rate(self, movie, rating):
         try:
@@ -80,20 +59,6 @@ class User(Base, UserMixin):
 
     def get_email(self):
         return self.email
-
-    def get_age(self):
-        return self.age
-
-    def set_age(self, age):
-        self.age = age
-        self.save()
-
-    def get_gender(self):
-        return self.gender
-
-    def set_gender(self, gender):
-        self.gender = gender
-        self.save()
 
     def set_music_genres(self, genres):
         self.music_genres = genres
@@ -125,11 +90,16 @@ class User(Base, UserMixin):
         self.save()
 
     def add_events(self, events_to_add):
-        self.update(push_all__events = events_to_add)
+        self.update(push_all__events=events_to_add)
         self.save()
 
     def get_events(self):
         return self.events
+
+    def set_recommended_events(self, recommended_events):
+        self.update(pull_all__recommended_events=self.recommended_events)
+        self.update(push_all__recommended_events=recommended_events)
+
 
     def set_name(self, name):
         self.name = name
@@ -137,4 +107,3 @@ class User(Base, UserMixin):
 
     def get_name(self):
         return self.name
-

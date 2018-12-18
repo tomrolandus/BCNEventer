@@ -61,7 +61,7 @@
                 </h6>
                 <ul class="nav flex-column mb-2">
                     <li v-for="(category, idx) in categories" class="nav-item">
-                        <a class="nav-link" href="" @click.prevent="fetchEvents(category.id,true)"
+                        <a class="nav-link" href="" @click.prevent="categoryIdsFilter=[category.id];fetchEvents(true)"
                            style="color: white">
                             ${category.name}
                         </a>
@@ -155,21 +155,23 @@
                     return text
                 },
                 fetchCategories() {
-                    axios.get(`/categories`).then(({data}) => {
+                    axios.get(`/user_categories`).then(({data}) => {
                         this.categories = data;
                     })
                 },
-                fetchEvents(categoryId='',reset=false) {
+                fetchEvents(reset=false) {
                     if (reset) {
                         this.page = 1;
                     }
 
-                    this.currentEventFetch = axios.get(`/events?page=${this.page}&category_ids=${categoryId}`).then(({data}) => {
+                    this.currentEventFetch = axios.get(`/events?page=${this.page}&category_ids=${this.categoryIdsFilter.join(',')}`).then(({data}) => {
                         if (reset)
                             this.events = data;
                         else
                             this.events = this.events.concat(data);
-                        this.page++;
+
+                        if (data.length)
+                            this.page++;
                     })
                 },
                 fetchUserEvents() {
@@ -202,23 +204,22 @@
                 },
                 initMap() {
                     let locCount = 0;
-                    let centerPoint = [41.4, 2.18];
-
-                    if (this.recommendedEvents.length) {
-                        centerPoint = this.recommendedEvents.reduce((accumulator, event) => {
-                            if (event.location.coordinates && !Number.isNaN(event.location.coordinates[0]) && !Number.isNaN(event.location.coordinates[1])) {
-                                locCount++;
-                                accumulator[0] += event.location.coordinates[0];
-                                accumulator[1] += event.location.coordinates[1];
-                                return accumulator;
-                            }
+                    let centerPoint = this.recommendedEvents.reduce((accumulator, event) => {
+                        let coords = event.location.coordinates;
+                        if (coords && !Number.isNaN(coords[0]) && !Number.isNaN(coords[1]) && coords[0] != 0 && coords[1] != 0) {
+                            locCount++;
+                            accumulator[0] += coords[0];
+                            accumulator[1] += coords[1];
                             return accumulator;
-                        }, [0, 0]);
-
-                        if (locCount) {
-                            centerPoint[0] /= locCount;
-                            centerPoint[1] /= locCount;
                         }
+                        return accumulator;
+                    }, [0, 0]);
+
+                    if (locCount) {
+                        centerPoint[0] /= locCount;
+                        centerPoint[1] /= locCount;
+                    } else {
+                        centerPoint = [41.4, 2.18];
                     }
 
                     // ADD THE MAP
@@ -235,10 +236,10 @@
                         const marker = L.marker(recommendedEvent.location.coordinates).addTo(this.mymap);
                         marker.bindPopup(recommendedEvent.name);
                         marker.on('mouseover', () => {
-                            this.openPopup();
+                            marker.openPopup();
                         });
                         marker.on('mouseout', () => {
-                            this.closePopup();
+                            marker.closePopup();
                         });
                         marker.on('click', () => {
                             $('.slider').slick('slickPause');
@@ -260,6 +261,7 @@
                 currentEventFetch: null,
                 recommendedEvents: [],
                 events: [],
+                categoryIdsFilter: [],
                 userEventIds: [],
                 categories: [],
                 page: 1

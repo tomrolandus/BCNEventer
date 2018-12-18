@@ -184,11 +184,6 @@
                         this.recommendedEvents = data
                     })
                 },
-                fetchPreferences() {
-                    return axios.get(`user_categories`).then(({data}) => {
-                        this.categories = data
-                    })
-                },
                 addUserEvent(eventId) {
                     axios.post(`/user_events/${eventId}`).then(() => {
                         this.userEventIds.push(eventId)
@@ -198,9 +193,6 @@
                     axios.delete(`/user_events/${eId}`).then(() => {
                         this.userEventIds = this.userEventIds.filter(eventId => eventId !== eId)
                     })
-                },
-                filterEvents(categoryId) {
-                    axios.post(`/${categoryId}/filter`)
                 },
                 initMap() {
                     let locCount = 0;

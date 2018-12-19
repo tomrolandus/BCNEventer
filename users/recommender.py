@@ -287,11 +287,11 @@ def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
     user = User.objects(id=user_id).first()
     user.set_recommended_events(recommend_events(df_old_users, df_new_user))
 
-if __name__ == "__main__":
-    from flask import Flask
-    from flask_mongoengine import MongoEngine
-    app = Flask(__name__)
-    app.config['MONGODB_DB'] = 'bcneventer'
-    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
-    db = MongoEngine(app)
-    set_recommended_events('5c19fad44561a90006f4e761')
+#if __name__ == "__main__":
+#    from flask import Flask
+#    from flask_mongoengine import MongoEngine
+#    app = Flask(__name__)
+#    app.config['MONGODB_DB'] = 'bcneventer'
+#    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+#    db = MongoEngine(app)
+#    set_recommended_events('5c19fad44561a90006f4e761')

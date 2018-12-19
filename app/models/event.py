@@ -20,7 +20,7 @@ class Event(Base):
         self.categories = categories
 
     def to_json(self, *args, **kwargs):
-        cats = [str(cat_ref.id) for cat_ref in self.categories]
+        cats = [str(cat_ref.name).split(' ', 1)[0].lower() for cat_ref in self.categories]
 
         return {
             "id": str(self.id),
@@ -28,5 +28,5 @@ class Event(Base):
             "description": self.description,
             "location": self.location,
             "date_time": self.date_time,
-            "category_ids": cats,
+            "category_names": cats,
         }

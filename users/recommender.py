@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
+from random import seed, shuffle
 
 from app.models.event import Event
 from app.models.user import User
@@ -109,9 +110,7 @@ def set_ratings_of_user(user_id):
 
 
 # %%
-
-
-def generate_random_user_item_matrix(user_id, fill_factor=0.2):
+def generate_user_item_matrix(user_id):
     """
     Generates a user-item matrix that is randomly filled with 0's and 1's.
     The ratio of 1's is equal to fill_factor. The matrix does not contain
@@ -135,11 +134,35 @@ def generate_random_user_item_matrix(user_id, fill_factor=0.2):
 
     # do cartesian product of users and events
     df_user_event = pd.merge(df_users, df_events).drop('key', axis=1)
-    return generate_random_ratings(df_user_event, fill_factor)
-    # return df_user_event
+    return df_user_event
 
 
-def generate_random_ratings(df, fill_factor):
+def generate_ratings_from_db(user_id):
+    users = get_user_ids_from_db()
+    users.remove(user_id)
+    df = pd.DataFrame(columns = ['user_id', 'event_id'])
+    for user in users:
+        user_events = get_event_ids_of_user(user)
+        num_events = len(user_events)
+        user_vec = [user] * num_events
+        df_temp = pd.DataFrame({
+            'user_id': user_vec,
+            'event_id': user_events
+        })
+        df = pd.concat([df, df_temp], axis = 0)
+
+    df['rating'] = 1
+
+    user_all_events = generate_user_item_matrix(user_id)
+    user_all_events['rating'] = 0
+
+    df = df.append(user_all_events)
+    df = df.drop_duplicates(subset = ['event_id', 'user_id'])
+
+    return df
+
+
+def generate_random_ratings(user_id, fill_factor = .3):
     """
     Randomly fills df with 0's and 1's. Ratio of 1's is given by fill_factor
     :param df:
@@ -147,6 +170,7 @@ def generate_random_ratings(df, fill_factor):
     :return:
     """
     # get user_item matrix and set indices to 0
+    df = generate_user_item_matrix(user_id)
     df['rating'] = 0
 
     # generate positions to fill with rating
@@ -232,6 +256,8 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
     :param num_events:
     :return:
     """
+    seed(1234)
+
     most_similar_users = get_most_similar_users(df_old_users, df_new_user)
     possible_events = get_possible_events(df_new_user)
 
@@ -241,21 +267,24 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
     for user in most_similar_users:
         mask2 = df_old_users.user_id == user
         events = df_old_users.loc[mask1 & mask2, 'event_id']
-        for event in events:
+        for event in shuffle(events):
             recommended_events.append(event)
             if len(recommended_events) >= num_events:
                 return recommended_events
     return recommended_events
 
 
-def set_recommended_events(user_id):
+def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
     """
     Gets the recommended events and saves them in the User class
     :param user_id: the id of the current user
     :return: nothing
     """
-    print('get new recommended events')
-    df_old_users = generate_random_user_item_matrix(user_id)
+    if ratings_from_db:
+        df_old_users = generate_ratings_from_db(user_id)
+    else:
+        df_old_users = generate_random_ratings(user_id, fill_factor)
     df_new_user = set_ratings_of_user(user_id)
     user = User.objects(id=user_id).first()
     user.set_recommended_events(recommend_events(df_old_users, df_new_user))
+

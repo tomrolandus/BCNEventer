@@ -254,6 +254,7 @@ def set_recommended_events(user_id):
     :param user_id: the id of the current user
     :return: nothing
     """
+    print('get new recommended events')
     df_old_users = generate_random_user_item_matrix(user_id)
     df_new_user = set_ratings_of_user(user_id)
     user = User.objects(id=user_id).first()

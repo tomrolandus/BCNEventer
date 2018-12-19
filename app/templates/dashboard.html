@@ -108,7 +108,9 @@
                         <div v-for="(event, idx) in events" class="card"
                              style="width: 15rem; border: 2px solid black;">
 
+
                             <img v-if="event.category_names.length" onclick="$('#details').modal('show')" @click="updateFields(event.name,event.date_time, event.description, userEventIds.includes(event.id), event.category_names[0], event.id)" class="card-img-top selector" :src="'../static/' + event.category_names[0] + '.jpeg'"
+
 
                                  width="200px" height="150px"
                                  alt="Card image cap">
@@ -138,7 +140,9 @@
                                           <div class="modal-body">
                                               <div class="container-fluid">
                                                   <div class="row">
+
                                                       <img v-if="event.category_names.length" class="card-img-top" :src="path"
+
                                                          width="100%" height="100%"
                                                          alt="Card image cap">
                                                   </div>

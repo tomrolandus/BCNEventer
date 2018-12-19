@@ -269,7 +269,9 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
         for event in events:
             recommended_events.append(event)
             if len(recommended_events) >= num_events:
+                print('number of rec events: ' , len(recommended_events))
                 return recommended_events
+
     return recommended_events
 
 
@@ -279,6 +281,7 @@ def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
     :param user_id: the id of the current user
     :return: nothing
     """
+    print('get new recommended events')
     if ratings_from_db:
         df_old_users = generate_ratings_from_db(user_id)
     else:
@@ -296,4 +299,5 @@ def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
 #    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
 #    db = MongoEngine(app)
 #    set_recommended_events('5c19fad44561a90006f4e761')
+
 

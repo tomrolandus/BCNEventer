@@ -82,8 +82,8 @@
                             <div v-for="(event, idx) in recommendedEvents" style="text-align: center;">
                                 <h6 style="height: 70px; color: white; margin: auto;">${ event.name }</h6>
 
-                                <img v-if="event.category_names.length" class="card-img-top" :src="'../static/' + event.category_names[0] + '.jpeg'"
-
+                                <!--<img v-if="event.category_names.length" class="card-img-top" :src="'../static/' + event.category_names[0] + '.jpeg'"-->
+                                <img v-if="event.category_names.length" onclick="$('#details').modal('show')" @click="updateFields(event.name,event.date_time, event.description, userEventIds.includes(event.id), event.category_names[0], event.id)" class="card-img-top selector" :src="'../static/' + event.category_names[0] + '.jpeg'"
                                      height="200px"
                                      style="margin-bottom: 20px" alt="Card image cap">
                                 <p class="card-text"

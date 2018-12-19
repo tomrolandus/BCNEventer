@@ -44,7 +44,7 @@ db = MongoEngine(app)
 ## Xceed
 xceed = lib.load_and_prepare_data(cnames,
                                   lib.format_cols_exceed,
-                                  "../datasets/Xceed/xceed_barcelona.csv",
+                                  "datasets/Xceed/xceed_barcelona.csv",
                                   cat_ids_from_prod = query_category_ids_from_prod)
 lib.write_df_to_db(xceed)
 
@@ -53,7 +53,7 @@ print("Finished with Xceed, continue with Meetup...")
 #%% Meetup
 meetup = lib.load_and_prepare_data(cnames,
                                    lib.format_cols_meetup,
-                                   "../datasets/MeetUp/events_Barcelona.csv",
+                                   "datasets/MeetUp/events_Barcelona.csv",
                                    delimiter_ = ";",
                                    cat_ids_from_prod = query_category_ids_from_prod)
 lib.write_df_to_db(meetup)

@@ -85,7 +85,10 @@ def record_interest(event_id):
         current_user.update(pull_all__events=[event])
     else:
         current_user.update(add_to_set__events=[event])
-    recommender.set_recommended_events(current_user.id)
+
+    user = User.objects(id=current_user.id).first()
+    recommender.set_recommended_events(user.id)
+    #recommender.set_recommended_events(current_user.id)
     return redirect(request.referrer)
 
 

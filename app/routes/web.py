@@ -34,14 +34,15 @@ def register():
         user = User.objects(email=form.email.data).first()
         if user is None:
             try:
-                User.create(form.email.data, form.password.data)
+                user = User.create(form.email.data, form.password.data)
             except Exception as e:
                 if str(e) == 'password_length':
                     return render_template('register.html', form=form,
                                            server_errors=['Your password should be between 8 and 20 characters long'])
                 return render_template('register.html', form=form, server_errors=['An unexpected error occured'])
 
-            return redirect(url_for('web.dashboard'))
+            login_user(user)
+            return redirect(url_for('web.preferences'))
         return render_template('register.html', form=form, server_errors=['Your email is already registered!'])
 
     return render_template('register.html', form=form)

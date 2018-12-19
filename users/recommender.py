@@ -274,7 +274,7 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
     return recommended_events
 
 
-def set_recommended_events(user_id, ratings_from_db = True):
+def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
     """
     Gets the recommended events and saves them in the User class
     :param user_id: the id of the current user
@@ -283,7 +283,7 @@ def set_recommended_events(user_id, ratings_from_db = True):
     if ratings_from_db:
         df_old_users = generate_ratings_from_db(user_id)
     else:
-        df_old_users = generate_random_ratings(user_id, .2)
+        df_old_users = generate_random_ratings(user_id, fill_factor)
     df_new_user = set_ratings_of_user(user_id)
     user = User.objects(id=user_id).first()
     user.set_recommended_events(recommend_events(df_old_users, df_new_user))

@@ -139,7 +139,8 @@ def generate_user_item_matrix(user_id):
 
 def generate_ratings_from_db(user_id):
     users = get_user_ids_from_db()
-    users.remove(user_id)
+    if user_id in users:
+        users.remove(user_id)
     df = pd.DataFrame(columns = ['user_id', 'event_id'])
     for user in users:
         user_events = get_event_ids_of_user(user)
@@ -256,8 +257,6 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
     :param num_events:
     :return:
     """
-    seed(1234)
-
     most_similar_users = get_most_similar_users(df_old_users, df_new_user)
     possible_events = get_possible_events(df_new_user)
 
@@ -267,7 +266,7 @@ def recommend_events(df_old_users, df_new_user, num_events=5):
     for user in most_similar_users:
         mask2 = df_old_users.user_id == user
         events = df_old_users.loc[mask1 & mask2, 'event_id']
-        for event in shuffle(events):
+        for event in events:
             recommended_events.append(event)
             if len(recommended_events) >= num_events:
                 return recommended_events
@@ -288,3 +287,11 @@ def set_recommended_events(user_id, ratings_from_db = True, fill_factor = 0.3):
     user = User.objects(id=user_id).first()
     user.set_recommended_events(recommend_events(df_old_users, df_new_user))
 
+#if __name__ == "__main__":
+#    from flask import Flask
+#    from flask_mongoengine import MongoEngine
+#    app = Flask(__name__)
+#    app.config['MONGODB_DB'] = 'bcneventer'
+#    app.config['MONGODB_HOST'] = "mongodb://localhost:27017/bcneventer"
+#    db = MongoEngine(app)
+#    set_recommended_events('5c19fad44561a90006f4e761')

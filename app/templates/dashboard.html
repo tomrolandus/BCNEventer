@@ -108,7 +108,7 @@
                         <div v-for="(event, idx) in events" class="card"
                              style="width: 15rem; border: 2px solid black;">
 
-                            <img v-if="event.category_names.length" onclick="$('#details').modal('show')" @click="updateFields(event.name,event.date_time, event.description)" class="card-img-top selector" src="'../static/' + event.category_names[0] + '.jpeg'"
+                            <img v-if="event.category_names.length" onclick="$('#details').modal('show')" @click="updateFields(event.name,event.date_time, event.description, userEventIds.includes(event.id), event.category_names[0], event.id)" class="card-img-top selector" :src="'../static/' + event.category_names[0] + '.jpeg'"
 
                                  width="200px" height="150px"
                                  alt="Card image cap">
@@ -138,7 +138,7 @@
                                           <div class="modal-body">
                                               <div class="container-fluid">
                                                   <div class="row">
-                                                      <img v-if="event.category_ids.length" class="card-img-top" src="'../static/' + event.category_names[0] + '.jpeg'"
+                                                      <img v-if="event.category_names.length" class="card-img-top" :src="path"
                                                          width="100%" height="100%"
                                                          alt="Card image cap">
                                                   </div>
@@ -158,14 +158,14 @@
                                           </div>
                                           <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <div class="mt-auto">
-                                    <a v-if="userEventIds.includes(event.id)" @click="removeUserEvent(event.id)"
+                                                                            <div class="mt-auto" style="width:100%">
+                                    <a v-if="status" @click="removeUserEvent(eid)"
                                        class="btn col"
-                                       style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto;">
+                                       style="background-color: black; color: #FFC312; border: 2px solid black; margin: auto; width:100%">
                                         CHANGED MY MIND
                                     </a>
-                                    <a v-else class="btn col" @click="addUserEvent(event.id)"
-                                       style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto;">
+                                    <a v-else class="btn col" @click="addUserEvent(eid)"
+                                       style="background-color: #FFC312; color: black; border: 2px solid black; margin: auto; width:100%">
                                         I WANNA GO
                                     </a>
                                 </div>
@@ -201,10 +201,13 @@
                 };
             },
             methods: {
-                updateFields(name, date, desc){
+                updateFields(name, date, desc, s, p, id){
                     this.ename = name;
                     this.edate = date;
                     this.edescription = desc;
+                    this.status = s;
+                    this.path = '../static/' + p + '.jpeg';
+                    this.eid = id;
                     return true;
                 },
                 ellipsis(text, maxLength = 50) {
@@ -247,12 +250,14 @@
                 addUserEvent(eventId) {
                     axios.post(`/user_events/${eventId}`).then(() => {
                         this.userEventIds.push(eventId)
-                    })
+                    });
+                    this.status = true;
                 },
                 removeUserEvent(eId) {
                     axios.delete(`/user_events/${eId}`).then(() => {
                         this.userEventIds = this.userEventIds.filter(eventId => eventId !== eId)
-                    })
+                    });
+                    this.status = false;
                 },
                 initMap() {
                     let locCount = 0;
@@ -319,7 +324,10 @@
                 page: 1,
                 ename: null,
                 edate: null,
-                edescription: null
+                edescription: null,
+                status: false,
+                path: null,
+                eid: null
             },
         })
     </script>

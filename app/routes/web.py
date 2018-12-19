@@ -55,13 +55,10 @@ def login():
         return render_template('login.html', form=form)
 
     if form.validate():
-        print(User.objects)
         user = User.objects(email=form.email.data).first()
         if user and user.login(form.password.data):
             login_user(user)
-            print("start getting events")
-            recommender.set_recommended_events(user.id)
-            print('finished getting events')
+            # recommender.set_recommended_events(user.id)
             return redirect(url_for('web.dashboard'))
 
         return render_template('login.html', form=form, server_errors=['Wrong email or password!'])
@@ -85,16 +82,16 @@ def record_interest(event_id):
         current_user.update(pull_all__events=[event])
     else:
         current_user.update(add_to_set__events=[event])
-
     user = User.objects(id=current_user.id).first()
     recommender.set_recommended_events(user.id)
-    #recommender.set_recommended_events(current_user.id)
     return redirect(request.referrer)
 
 
 @web.route('/dashboard')
 @login_required
 def dashboard():
+    user = User.objects(id=current_user.id).first()
+    recommender.set_recommended_events(user.id)
     return render_template('dashboard.html', name=current_user.email)
 
 
@@ -180,7 +177,6 @@ def preferences():
     else:
         current_user.update(categories=None)
 
-    user = User.objects(id=current_user.id).first()
-
-    recommender.set_recommended_events(user.id)
+    # user = User.objects(id=current_user.id).first()
+    # recommender.set_recommended_events(user.id)
     return redirect(url_for('web.dashboard'))

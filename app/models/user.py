@@ -39,24 +39,6 @@ class User(Base, UserMixin):
 
         return None
 
-    def rate(self, movie, rating):
-        try:
-            if movie in self.ratings[self.MOVIES].tolist():
-                self.ratings.loc[self.ratings[self.MOVIES] == movie, self.self.RATES] = rating
-            else:
-                self.ratings.append(pd.Series({self.MOVIES: movie, self.RATES: rating}))
-        except TypeError:
-            self.ratings = self.ratings.append(pd.Series({self.MOVIES: movie, self.RATES: rating}), ignore_index=True)
-
-    def retrieve_rate(self, movie):
-        return self.ratings.loc[self.ratings[self.MOVIES] == movie][self.RATES]
-
-    def retrieve_movies_between(self, minrate, maxrate):
-        return self.ratings[(self.ratings[self.RATES] < maxrate) & (self.ratings[self.RATES] > minrate)]
-
-    def retrieve_df(self):
-        return self.ratings
-
     def get_email(self):
         return self.email
 

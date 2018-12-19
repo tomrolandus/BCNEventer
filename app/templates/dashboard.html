@@ -27,7 +27,7 @@
     <link rel="stylesheet" type="text/css"
           href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 
 {% endblock extra_head %}
 {% block main %}
@@ -78,7 +78,7 @@
                         <div class="slider" style="width: 350px">
                             <div v-for="(event, idx) in recommendedEvents" style="text-align: center;">
                                 <h6 style="height: 70px; color: white; margin: auto;">${ event.name }</h6>
-                                <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0] + '.jpeg'"
+                                <img v-if="event.category_names.length" class="card-img-top" :src="'../static/' + event.category_names[0] + '.jpeg'"
                                      height="200px"
                                      style="margin-bottom: 20px" alt="Card image cap">
                                 <p class="card-text"
@@ -102,7 +102,7 @@
                     <div class="flex-container">
                         <div v-for="(event, idx) in events" class="card"
                              style="width: 15rem; border: 2px solid black;">
-                            <img v-if="event.category_ids.length" class="card-img-top" :src="'../static/' + event.category_ids[0] + '.jpeg'"
+                            <img v-if="event.category_names.length" class="card-img-top" :src="'../static/' + event.category_names[0]  + '.jpeg'"
                                  width="200px" height="150px"
                                  alt="Card image cap">
                             <div class="card-body d-flex flex-column">
